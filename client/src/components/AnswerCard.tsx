@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ProvenanceBadge from "./ProvenanceBadge";
 import { Separator } from "@/components/ui/separator";
+import type { QuestionIntent } from "@shared/schema";
 
 interface CourseInfo {
   subject: string;
@@ -24,7 +25,7 @@ interface AnswerCardProps {
   rosterDescr: string;
   isOldData?: boolean;
   classPageUrl: string;
-  answerType: "grading" | "credits" | "instructor" | "schedule" | "history" | "general";
+  answerType: QuestionIntent;
 }
 
 export default function AnswerCard({

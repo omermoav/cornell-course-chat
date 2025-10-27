@@ -12,11 +12,24 @@ export const subjectSchema = z.object({
   descr: z.string(),
 });
 
-export const meetingPatternSchema = z.object({
-  type: z.string().optional(),
+export const instructorSchema = z.object({
+  netid: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+});
+
+export const meetingSchema = z.object({
+  pattern: z.string().optional(),
   timeStart: z.string().optional(),
   timeEnd: z.string().optional(),
-  pattern: z.string().optional(),
+  facilityDescr: z.string().optional(),
+  instructors: z.array(instructorSchema).optional(),
+});
+
+export const classSectionSchema = z.object({
+  ssrComponent: z.string().optional(),
+  section: z.string().optional(),
+  meetings: z.array(meetingSchema).optional(),
 });
 
 export const enrollGroupSchema = z.object({
@@ -24,6 +37,7 @@ export const enrollGroupSchema = z.object({
   unitsMaximum: z.number().optional(),
   gradingBasis: z.string().optional(),
   gradingBasisShort: z.string().optional(),
+  classSections: z.array(classSectionSchema).optional(),
 });
 
 export const classSchema = z.object({
@@ -53,7 +67,7 @@ export interface StoredCourse {
   catalogNbr: string;
   titleLong: string;
   rosterSlug: string;
-  rosterDescr: z.infer<typeof rosterSchema>['descr'];
+  rosterDescr: string;
   gradingBasis?: string;
   unitsMinimum?: number;
   unitsMaximum?: number;
@@ -80,6 +94,8 @@ export interface Subject {
 export type RosterResponse = z.infer<typeof rosterSchema>;
 export type SubjectResponse = z.infer<typeof subjectSchema>;
 export type ClassResponse = z.infer<typeof classSchema>;
+export type InstructorResponse = z.infer<typeof instructorSchema>;
+export type MeetingResponse = z.infer<typeof meetingSchema>;
 
 // Question Intent Types
 export type QuestionIntent = 

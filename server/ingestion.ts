@@ -1,6 +1,6 @@
 import { cornellAPI } from "./cornell-api";
 import { storage } from "./storage";
-import { Roster, Subject, StoredCourse, ClassResponse } from "@shared/schema";
+import { Roster, Subject, StoredCourse, ClassResponse, InstructorResponse } from "@shared/schema";
 
 export class IngestionService {
   private isIngesting = false;
@@ -40,8 +40,13 @@ export class IngestionService {
     let unitsMin: number | undefined;
     let unitsMax: number | undefined;
 
+    // Collect instructors and meeting patterns
+    const instructorSet = new Set<string>();
+    const meetingPatterns: Array<{ days: string; timeStart: string; timeEnd: string }> = [];
+
     if (classData.enrollGroups) {
       for (const group of classData.enrollGroups) {
+        // Grading basis and credits
         if (group.gradingBasis) {
           gradingBases.add(group.gradingBasis);
         }
@@ -50,6 +55,42 @@ export class IngestionService {
         }
         if (group.unitsMaximum !== undefined) {
           unitsMax = unitsMax === undefined ? group.unitsMaximum : Math.max(unitsMax, group.unitsMaximum);
+        }
+
+        // Instructors and meetings from class sections
+        if (group.classSections) {
+          for (const section of group.classSections) {
+            if (section.meetings) {
+              for (const meeting of section.meetings) {
+                // Add meeting pattern if it has time information
+                if (meeting.pattern && meeting.timeStart && meeting.timeEnd) {
+                  // Check if we already have this exact pattern
+                  const patternKey = `${meeting.pattern}-${meeting.timeStart}-${meeting.timeEnd}`;
+                  const exists = meetingPatterns.some(
+                    p => `${p.days}-${p.timeStart}-${p.timeEnd}` === patternKey
+                  );
+                  
+                  if (!exists) {
+                    meetingPatterns.push({
+                      days: meeting.pattern,
+                      timeStart: meeting.timeStart,
+                      timeEnd: meeting.timeEnd,
+                    });
+                  }
+                }
+
+                // Add instructors
+                if (meeting.instructors) {
+                  for (const instructor of meeting.instructors) {
+                    if (instructor.firstName && instructor.lastName) {
+                      const fullName = `${instructor.firstName} ${instructor.lastName}`;
+                      instructorSet.add(fullName);
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -63,8 +104,8 @@ export class IngestionService {
       gradingBasis: gradingBases.size === 1 ? Array.from(gradingBases)[0] : undefined,
       unitsMinimum: unitsMin,
       unitsMaximum: unitsMax,
-      instructors: undefined, // Not in basic class data
-      meetingPatterns: undefined, // Not in basic class data
+      instructors: instructorSet.size > 0 ? Array.from(instructorSet) : undefined,
+      meetingPatterns: meetingPatterns.length > 0 ? meetingPatterns : undefined,
       lastTermsOffered: classData.catalogWhenOffered,
       rawData: JSON.stringify(classData),
     };
