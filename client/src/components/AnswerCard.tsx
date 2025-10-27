@@ -1,7 +1,9 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, BookOpen, Award, Users, Clock, Calendar, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import ProvenanceBadge from "./ProvenanceBadge";
+import { Separator } from "@/components/ui/separator";
 
 interface CourseInfo {
   subject: string;
@@ -42,20 +44,27 @@ export default function AnswerCard({
   };
 
   return (
-    <Card data-testid="card-answer" className="shadow-md">
-      <CardHeader className="space-y-3">
+    <Card data-testid="card-answer" className="shadow-lg border-2 overflow-hidden animate-fade-in">
+      {/* Header with gradient background */}
+      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 md:px-8 pt-6 pb-4">
         {isOldData && (
-          <div className="text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-md">
-            Note: Using the most recent available data ({rosterDescr})
+          <div className="mb-4 flex items-start gap-2 text-sm bg-muted/80 backdrop-blur-sm px-4 py-3 rounded-lg border">
+            <FileText className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
+            <span className="text-muted-foreground">
+              Note: Using the most recent available data ({rosterDescr})
+            </span>
           </div>
         )}
         
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-          <div className="space-y-2">
-            <div className="font-mono text-lg md:text-xl font-semibold text-primary" data-testid="text-course-code">
-              {courseInfo.subject} {courseInfo.catalogNbr}
+        <div className="flex flex-col gap-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-6 w-6 text-primary" />
+              <div className="font-mono text-xl md:text-2xl font-bold text-primary" data-testid="text-course-code">
+                {courseInfo.subject} {courseInfo.catalogNbr}
+              </div>
             </div>
-            <h2 className="text-xl md:text-2xl font-semibold" data-testid="text-course-title">
+            <h2 className="text-2xl md:text-3xl font-bold leading-tight" data-testid="text-course-title">
               {courseInfo.titleLong}
             </h2>
           </div>
@@ -65,28 +74,33 @@ export default function AnswerCard({
             isOldData={isOldData}
           />
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-6">
+      <CardContent className="px-6 md:px-8 py-6 space-y-6">
+        {/* Summary Section */}
+        <div className="grid sm:grid-cols-2 gap-6">
           {(answerType === "grading" || answerType === "general") && (
-            <div className="space-y-1">
-              <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Grading Basis
+            <div className="space-y-2 p-4 rounded-lg bg-card border">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                <Award className="h-4 w-4" />
+                <span>Grading Basis</span>
               </div>
               {courseInfo.gradingBasisVariations && courseInfo.gradingBasisVariations.length > 1 ? (
                 <div className="space-y-2">
-                  <div className="text-base md:text-lg font-semibold" data-testid="text-grading-basis">
+                  <Badge variant="outline" className="text-sm font-medium" data-testid="text-grading-basis">
                     Varies by section
-                  </div>
-                  <ul className="space-y-1 text-sm">
+                  </Badge>
+                  <ul className="space-y-1.5 text-sm pl-2">
                     {courseInfo.gradingBasisVariations.map((basis, idx) => (
-                      <li key={idx} className="font-mono">{formatGradingBasis(basis)}</li>
+                      <li key={idx} className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span className="font-medium">{formatGradingBasis(basis)}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               ) : (
-                <div className="text-base md:text-lg font-semibold" data-testid="text-grading-basis">
+                <div className="text-lg md:text-xl font-bold" data-testid="text-grading-basis">
                   {formatGradingBasis(courseInfo.gradingBasis)}
                 </div>
               )}
@@ -94,11 +108,12 @@ export default function AnswerCard({
           )}
 
           {(answerType === "credits" || answerType === "general") && courseInfo.unitsMinimum !== undefined && (
-            <div className="space-y-1">
-              <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Credits
+            <div className="space-y-2 p-4 rounded-lg bg-card border">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                <Award className="h-4 w-4" />
+                <span>Credits</span>
               </div>
-              <div className="text-base md:text-lg font-semibold" data-testid="text-credits">
+              <div className="text-lg md:text-xl font-bold" data-testid="text-credits">
                 {courseInfo.unitsMinimum === courseInfo.unitsMaximum 
                   ? `${courseInfo.unitsMinimum} credit${courseInfo.unitsMinimum !== 1 ? 's' : ''}`
                   : `${courseInfo.unitsMinimum}–${courseInfo.unitsMaximum} credits`
@@ -106,51 +121,80 @@ export default function AnswerCard({
               </div>
             </div>
           )}
+        </div>
 
-          {(answerType === "instructor" || answerType === "general") && courseInfo.instructors && courseInfo.instructors.length > 0 && (
-            <div className="space-y-1">
-              <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Instructor{courseInfo.instructors.length > 1 ? 's' : ''}
-              </div>
-              <div className="text-base md:text-lg" data-testid="text-instructors">
-                {courseInfo.instructors.join(", ")}
+        {/* Logistics Section */}
+        {((answerType === "instructor" || answerType === "schedule" || answerType === "general") && 
+          ((courseInfo.instructors && courseInfo.instructors.length > 0) || 
+           (courseInfo.meetingPatterns && courseInfo.meetingPatterns.length > 0))) && (
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Clock className="h-5 w-5 text-primary" />
+                <span>Course Details</span>
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {(answerType === "instructor" || answerType === "general") && courseInfo.instructors && courseInfo.instructors.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span>Instructor{courseInfo.instructors.length > 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="text-base font-medium" data-testid="text-instructors">
+                      {courseInfo.instructors.join(", ")}
+                    </div>
+                  </div>
+                )}
+
+                {(answerType === "schedule" || answerType === "general") && courseInfo.meetingPatterns && courseInfo.meetingPatterns.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>Meeting Times</span>
+                    </div>
+                    <div className="space-y-1.5" data-testid="text-schedule">
+                      {courseInfo.meetingPatterns.map((pattern, idx) => (
+                        <div key={idx} className="text-base">
+                          <Badge variant="outline" className="mr-2 font-semibold">{pattern.days}</Badge>
+                          <span className="font-medium">{pattern.timeStart} – {pattern.timeEnd}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
+          </>
+        )}
 
-          {(answerType === "schedule" || answerType === "general") && courseInfo.meetingPatterns && courseInfo.meetingPatterns.length > 0 && (
-            <div className="space-y-1">
-              <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Meeting Times
+        {/* History Section */}
+        {(answerType === "history" || answerType === "general") && courseInfo.lastTermsOffered && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                <span>Last Terms Offered</span>
               </div>
-              <div className="space-y-1" data-testid="text-schedule">
-                {courseInfo.meetingPatterns.map((pattern, idx) => (
-                  <div key={idx} className="text-base">
-                    <span className="font-medium">{pattern.days}</span>{" "}
-                    {pattern.timeStart} – {pattern.timeEnd}
-                  </div>
+              <div className="flex flex-wrap gap-2" data-testid="text-last-terms">
+                {courseInfo.lastTermsOffered.split(',').map((term, idx) => (
+                  <Badge key={idx} variant="secondary" className="font-mono">
+                    {term.trim()}
+                  </Badge>
                 ))}
               </div>
             </div>
-          )}
+          </>
+        )}
 
-          {(answerType === "history" || answerType === "general") && courseInfo.lastTermsOffered && (
-            <div className="space-y-1 md:col-span-2">
-              <div className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Last Terms Offered
-              </div>
-              <div className="text-base md:text-lg" data-testid="text-last-terms">
-                {courseInfo.lastTermsOffered}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="pt-4 border-t flex flex-col sm:flex-row gap-3">
+        {/* Action Buttons */}
+        <Separator />
+        <div className="flex flex-col sm:flex-row gap-3">
           <Button
             data-testid="button-view-class"
             asChild
-            className="flex-1 sm:flex-initial"
+            className="flex-1 h-12"
           >
             <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4 mr-2" />
@@ -161,11 +205,12 @@ export default function AnswerCard({
             data-testid="button-view-syllabus"
             variant="outline"
             asChild
-            className="flex-1 sm:flex-initial"
+            className="flex-1 h-12"
           >
             <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Syllabus (NetID Required)
+              <FileText className="h-4 w-4 mr-2" />
+              View Syllabus
+              <Badge variant="secondary" className="ml-2 text-xs">NetID Required</Badge>
             </a>
           </Button>
         </div>

@@ -20,11 +20,11 @@
 
   --border: 220 13% 91%;
 
-  --card: 0 0% 98%;
+  --card: 0 0% 99%;
 
   --card-foreground: 222 15% 15%;
 
-  --card-border: 220 13% 94%;
+  --card-border: 220 13% 93%;
 
   --sidebar: 220 9% 96%;
 
@@ -32,35 +32,37 @@
 
   --sidebar-border: 220 13% 91%;
 
-  --sidebar-primary: 221 83% 53%;
+  /* Cornell Carnelian Red as primary */
+  --sidebar-primary: 0 85% 45%;
 
-  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-primary-foreground: 0 0% 100%;
 
   --sidebar-accent: 220 14% 91%;
 
   --sidebar-accent-foreground: 222 15% 20%;
 
-  --sidebar-ring: 221 83% 53%;
+  --sidebar-ring: 0 85% 45%;
 
-  --popover: 220 9% 94%;
+  --popover: 0 0% 100%;
 
   --popover-foreground: 222 15% 15%;
 
   --popover-border: 220 13% 88%;
 
-  --primary: 221 83% 53%;
+  /* Cornell Carnelian Red */
+  --primary: 0 85% 45%;
 
-  --primary-foreground: 210 40% 98%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 220 13% 90%;
+  --secondary: 220 13% 92%;
 
   --secondary-foreground: 222 15% 20%;
 
-  --muted: 220 14% 92%;
+  --muted: 220 14% 94%;
 
-  --muted-foreground: 222 10% 35%;
+  --muted-foreground: 222 10% 40%;
 
-  --accent: 220 16% 90%;
+  --accent: 35 95% 55%;
 
   --accent-foreground: 222 15% 18%;
 
@@ -68,9 +70,9 @@
 
   --destructive-foreground: 0 0% 98%;
 
-  --input: 220 13% 75%;
-  --ring: 221 83% 53%;
-  --chart-1: 221 83% 53%;
+  --input: 220 13% 85%;
+  --ring: 0 85% 45%;
+  --chart-1: 0 85% 45%;
   --chart-2: 142 71% 45%;
   --chart-3: 262 83% 58%;
   --chart-4: 35 91% 55%;
@@ -132,17 +134,17 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
-  --background: 222 14% 8%;
+  --background: 222 20% 7%;
 
-  --foreground: 210 20% 92%;
+  --foreground: 210 20% 94%;
 
-  --border: 220 13% 18%;
+  --border: 220 13% 16%;
 
-  --card: 222 12% 10%;
+  --card: 222 18% 9%;
 
-  --card-foreground: 210 20% 92%;
+  --card-foreground: 210 20% 94%;
 
-  --card-border: 220 13% 15%;
+  --card-border: 220 13% 14%;
 
   --sidebar: 222 12% 12%;
 
@@ -150,45 +152,45 @@
 
   --sidebar-border: 220 13% 18%;
 
-  --sidebar-primary: 221 83% 53%;
+  --sidebar-primary: 0 85% 50%;
 
-  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-primary-foreground: 0 0% 100%;
 
   --sidebar-accent: 220 13% 16%;
 
   --sidebar-accent-foreground: 210 20% 90%;
 
-  --sidebar-ring: 221 83% 53%;
+  --sidebar-ring: 0 85% 50%;
 
-  --popover: 222 12% 14%;
+  --popover: 222 18% 11%;
 
-  --popover-foreground: 210 20% 92%;
+  --popover-foreground: 210 20% 94%;
 
-  --popover-border: 220 13% 20%;
+  --popover-border: 220 13% 18%;
 
-  --primary: 221 83% 53%;
+  --primary: 0 85% 50%;
 
-  --primary-foreground: 210 40% 98%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 220 13% 18%;
+  --secondary: 220 13% 16%;
 
-  --secondary-foreground: 210 20% 90%;
+  --secondary-foreground: 210 20% 92%;
 
-  --muted: 220 14% 16%;
+  --muted: 220 14% 14%;
 
-  --muted-foreground: 220 10% 65%;
+  --muted-foreground: 220 10% 60%;
 
-  --accent: 220 16% 17%;
+  --accent: 35 95% 60%;
 
-  --accent-foreground: 210 20% 90%;
+  --accent-foreground: 222 15% 10%;
 
   --destructive: 0 72% 51%;
 
   --destructive-foreground: 0 0% 98%;
 
-  --input: 220 13% 35%;
-  --ring: 221 83% 53%;
-  --chart-1: 221 83% 63%;
+  --input: 220 13% 25%;
+  --ring: 0 85% 50%;
+  --chart-1: 0 85% 60%;
   --chart-2: 142 71% 55%;
   --chart-3: 262 83% 68%;
   --chart-4: 35 91% 65%;
@@ -319,5 +321,53 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Glass effect for cards */
+  .glass-effect {
+    backdrop-filter: blur(8px);
+    background: hsl(var(--card) / 0.8);
+  }
+
+  /* Fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Skeleton loading animation */
+  @keyframes skeleton-loading {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted) / 0.5) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
   }
 }

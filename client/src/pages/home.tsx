@@ -2,12 +2,15 @@ import { useState } from "react";
 import SearchInput from "@/components/SearchInput";
 import AnswerCard from "@/components/AnswerCard";
 import StatusMessage from "@/components/StatusMessage";
+import ThemeToggle from "@/components/ThemeToggle";
+import { GraduationCap } from "lucide-react";
 
 type SearchStatus = "idle" | "loading" | "success" | "error" | "notFound" | "passRatePolicy";
 
 export default function Home() {
   const [searchStatus, setSearchStatus] = useState<SearchStatus>("idle");
   const [currentQuery, setCurrentQuery] = useState("");
+  const [recentQueries, setRecentQueries] = useState<string[]>([]);
 
   //todo: remove mock functionality
   const mockCourseData = {
@@ -30,6 +33,12 @@ export default function Home() {
     setCurrentQuery(query);
     setSearchStatus("loading");
 
+    // Add to recent queries
+    setRecentQueries(prev => {
+      const filtered = prev.filter(q => q !== query);
+      return [query, ...filtered].slice(0, 5);
+    });
+
     //todo: remove mock functionality - simulate API call
     setTimeout(() => {
       const lowerQuery = query.toLowerCase();
@@ -50,35 +59,56 @@ export default function Home() {
       else {
         setSearchStatus("success");
       }
-    }, 1000);
+    }, 1200);
+  };
+
+  const handleClearRecent = () => {
+    setRecentQueries([]);
+    console.log('Recent queries cleared');
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50">
-        <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
-          <div className="text-center space-y-2">
-            <div className="text-lg font-semibold text-primary">Cornell University</div>
-            <h1 className="text-3xl md:text-4xl font-bold">Classes Q&A</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Ask natural-language questions about Cornell courses
-            </p>
+      {/* Hero Header with Gradient */}
+      <header className="relative border-b overflow-hidden">
+        {/* Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
+                <GraduationCap className="h-7 w-7 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-primary uppercase tracking-wider">Cornell University</div>
+                <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                  Classes Q&A
+                </h1>
+              </div>
+            </div>
+            <ThemeToggle />
           </div>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
+            Ask natural-language questions about Cornell courses and get instant answers from the official Class Roster API
+          </p>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-12 md:py-16">
-        <div className="space-y-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+        <div className="space-y-10">
           {/* Search Section */}
           <SearchInput 
             onSearch={handleSearch}
             isLoading={searchStatus === "loading"}
+            recentQueries={recentQueries}
+            onClearRecent={handleClearRecent}
           />
 
           {/* Results Section */}
-          <div>
+          <div className="max-w-4xl mx-auto">
             {searchStatus === "idle" && (
               <StatusMessage type="empty" />
             )}
@@ -123,14 +153,23 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t mt-16">
-        <div className="max-w-4xl mx-auto px-4 py-8 text-center space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Data from Cornell Class Roster API
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Rate limit: ≤1 request/second
-          </p>
+      <footer className="border-t mt-20 bg-card/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                Data from Cornell Class Roster API
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Rate limit: ≤1 request/second • All course data is official and up-to-date
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="px-3 py-1.5 rounded-full bg-muted/50">
+                Fall 2025 Roster
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
