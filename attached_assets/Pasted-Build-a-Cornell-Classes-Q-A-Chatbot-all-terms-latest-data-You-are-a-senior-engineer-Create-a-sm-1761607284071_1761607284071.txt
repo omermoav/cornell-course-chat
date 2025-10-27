@@ -1,0 +1,146 @@
+Build a Cornell Classes Q&A Chatbot (all terms, latest data)
+
+You are a senior engineer. Create a small web app that answers natural-language questions about Cornell classes (e.g., “Is NBAY 5500 pass/fail?”, “How many credits?”, “Open the syllabus link”), using the official Cornell Class Roster API as the single source of truth. The app must index all available rosters, answer from the most recent term with data, and clearly show which term/roster the answer came from. If a course has no roster history, say it “may be new or there’s no public data yet.”
+
+Jobs To Be Done (JTBD)
+
+Ingest data across rosters
+
+Enumerate every available roster and all subjects in each roster.
+
+For each (roster, subject), pull classes and store them locally.
+
+Respect the official API usage guidance (≤ 1 request/second). 
+Cornell Class Roster
+
+Answer questions deterministically (no external LLM required)
+
+Parse “SUBJ ####” (e.g., NBAY 5500) from user questions.
+
+Detect intent keywords:
+
+pass/fail / S/U / letter → grading basis
+
+credits / credit hours → min–max credits
+
+instructor / professor → instructors
+
+time / meets / schedule → meeting days/times
+
+last offered / history → last terms offered
+
+syllabus → deep-link to the official Class Roster page (do not copy files; many syllabi require NetID). 
+Cornell Class Roster
++1
+
+If only a subject is provided (no number), return a brief subject summary and top 5 matching classes with their grading basis.
+
+Pick the latest data & show provenance
+
+Define a stable term order: WI(1) < SP(2) < SU(3) < FA(4); combine with year to rank rosters (e.g., FA25 > SP25 > FA24).
+
+When multiple terms exist for a course, answer from the latest and display “Source: Fall 2025 (FA25)” (example).
+
+If the newest campus roster is newer than the class’s last appearance, prepend: “Note: Using the most recent available data (<term>).”
+
+If no appearances in any roster: “No roster history found for SUBJ ####. This may be a new course or there’s no public data yet.”
+
+Handle pass-rate requests properly
+
+If asked for “pass rate,” “grade distributions,” etc., respond:
+“Cornell does not publish current pass rates/median grades via the Class Roster; I can share grading basis and link the official class page.” Include the class link. (Policy change: median grades discontinued on transcripts in 2023–24.) 
+Cornell Registrar
++1
+
+Syllabus access & compliance
+
+Never mirror syllabus PDFs; only deep-link to the class page where syllabi are posted (NetID-gated for many courses). Provide a “Open syllabus on Class Roster” button. 
+Cornell Class Roster
++1
+
+Data Sources (official, JSON)
+
+API details & methods (version 2.0, GET, endpoints & rate limit):
+/api/2.0/config/rosters, /api/2.0/config/subjects?roster=<ROSTER>, /api/2.0/search/classes?roster=<ROSTER>&subject=<SUBJ> (use q=, acadCareer[], etc., as needed). 
+Cornell Class Roster
+
+Roster browse site (for deep links & user navigation):
+https://classes.cornell.edu/browse/roster/<ROSTER> (e.g., FA25). 
+Cornell Class Roster
+
+Syllabi usage (students/faculty) for behavior & NetID gating. 
+Cornell Class Roster
++1
+
+Required Behaviors & Rules
+
+Latest snapshot logic: Build a per-course key subject + catalogNbr. For answers, select the record with the max (year, termCode) parsed from roster slug (e.g., FA25 → (2025,4)).
+
+Always show provenance: Every answer must include {roster_slug, roster_descr} in the payload and a visible badge, e.g., “Source: Fall 2025 (FA25)”.
+
+Mixed sections caveat: If grading basis varies by section within the same term, say “Varies by section,” then list each distinct basis.
+
+Grading basis mapping (human-readable):
+
+“Student Option” → “Student Option (Letter or S/U)”
+
+Contains “S/U” or “Satisfactory/Unsatisfactory” → “S/U only”
+
+“Letter” (not option) → “Letter only”
+
+Otherwise, return the raw value from the API.
+
+Last terms offered: If present (FA25+), include the lastTermsOffered string in answers to “last offered” questions. 
+Cornell Class Roster
+
+Syllabus button: Returns the class page URL (do not fetch or store PDFs). 
+Cornell Class Roster
+
+Rate limiting & retries: Honor ≤1 rps and add gentle backoff on failures. 
+Cornell Class Roster
+
+Minimal Feature Set
+
+Ingest all rosters → subjects → classes (store locally).
+
+REST endpoints:
+
+/api/ping
+
+/api/rosters (list)
+
+/api/classes/latest?subject=SUBJ&catalog_nbr=####
+
+/api/classes/history?subject=SUBJ&catalog_nbr=####
+
+/api/ask (intent parser described above; deterministic)
+
+Single-page UI:
+
+Input box for natural questions (e.g., “Is NBAY 5500 pass/fail?”)
+
+Answer panel + provenance badge and a “Open class page / syllabus” button.
+
+Acceptance Tests (must pass, end-to-end)
+
+“Is NBAY 5500 pass/fail?” → Returns grading basis + “Source: <latest term>” + link to class page.
+
+“Credits for INFO 2950?” → Returns min–max credits + “Source: <term>”.
+
+“Open syllabus for CS 4780” → Returns class page link with NetID note. 
+Cornell Class Roster
+
+“Pass rate for ORIE 3500?” → Returns policy message + class link. 
+Cornell Registrar
+
+Ask a course that only appears in an older roster → Includes: “Note: Using the most recent available data (…term…)”.
+
+Ask a course that doesn’t exist anywhere → “may be new or no public data yet.”
+
+Non-Functional
+
+Clear errors if the Cornell API is unreachable.
+
+Input validation; never crash on malformed questions.
+
+No scraping; only use the documented endpoints and deep links.
