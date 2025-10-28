@@ -3,11 +3,13 @@ import { ParsedQuestion, QuestionIntent } from "@shared/schema";
 export class IntentParser {
   /**
    * Extract course code from natural language query
-   * Supports formats like: "NBAY 5500", "CS4780", "INFO 2950"
+   * Supports formats like: "NBAY 5500", "CS4780", "INFO 2950", "ANTHR 1101"
    */
   private extractCourseCode(query: string): { subject?: string; catalogNbr?: string } {
-    // Pattern: 2-4 letters followed by optional space and 4 digits
-    const pattern = /\b([A-Z]{2,4})\s*(\d{4})\b/i;
+    // Pattern: 2-5 letters followed by optional space and exactly 4 digits
+    // Cornell subject codes are 2-5 letters (e.g., CS, INFO, ANTHR, BIOBM, CHEME)
+    // Catalog numbers are always 4 digits (e.g., 1110, 2950, 5500)
+    const pattern = /\b([A-Z]{2,5})\s*(\d{4})\b/i;
     const match = query.match(pattern);
     
     if (match) {

@@ -13,52 +13,52 @@ export const subjectSchema = z.object({
 });
 
 export const instructorSchema = z.object({
-  netid: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
+  netid: z.string().nullish(),
+  firstName: z.string().nullish(),
+  lastName: z.string().nullish(),
 });
 
 export const meetingSchema = z.object({
-  pattern: z.string().optional(),
-  timeStart: z.string().optional(),
-  timeEnd: z.string().optional(),
-  facilityDescr: z.string().optional(),
-  instructors: z.array(instructorSchema).optional(),
+  pattern: z.string().nullish(),
+  timeStart: z.string().nullish(),
+  timeEnd: z.string().nullish(),
+  facilityDescr: z.string().nullish(),
+  instructors: z.array(instructorSchema).nullish(),
 });
 
 export const classSectionSchema = z.object({
-  ssrComponent: z.string().optional(),
-  section: z.string().optional(),
-  meetings: z.array(meetingSchema).optional(),
+  ssrComponent: z.string().nullish(),
+  section: z.string().nullish(),
+  meetings: z.array(meetingSchema).nullish(),
 });
 
 export const enrollGroupSchema = z.object({
-  unitsMinimum: z.number().optional(),
-  unitsMaximum: z.number().optional(),
-  gradingBasis: z.string().optional(),
-  gradingBasisShort: z.string().optional(),
-  classSections: z.array(classSectionSchema).optional(),
+  unitsMinimum: z.number().nullish(),
+  unitsMaximum: z.number().nullish(),
+  gradingBasis: z.string().nullish(),
+  gradingBasisShort: z.string().nullish(),
+  classSections: z.array(classSectionSchema).nullish(),
 });
 
 export const classSchema = z.object({
   subject: z.string(),
   catalogNbr: z.string(),
   titleLong: z.string(),
-  titleShort: z.string().optional(),
-  description: z.string().optional(),
-  enrollGroups: z.array(enrollGroupSchema).optional(),
-  catalogWhenOffered: z.string().optional(),
-  catalogBreadth: z.string().optional(),
-  catalogDistr: z.string().optional(),
-  catalogLang: z.string().optional(),
-  catalogForbiddenOverlaps: z.array(z.string()).optional(),
-  catalogPrereqCoreq: z.string().optional(),
-  catalogSatisfiesReq: z.string().optional(),
-  catalogPermission: z.string().optional(),
-  catalogCourseSubfield: z.string().optional(),
-  catalogOutcomeDesc: z.string().optional(),
-  acadCareer: z.string().optional(),
-  acadGroup: z.string().optional(),
+  titleShort: z.string().nullish(),
+  description: z.string().nullish(),
+  enrollGroups: z.array(enrollGroupSchema).nullish(),
+  catalogWhenOffered: z.string().nullish(),
+  catalogBreadth: z.string().nullish(),
+  catalogDistr: z.string().nullish(),
+  catalogLang: z.string().nullish(),
+  catalogForbiddenOverlaps: z.array(z.string()).nullish(),
+  catalogPrereqCoreq: z.string().nullish(),
+  catalogSatisfiesReq: z.string().nullish(),
+  catalogPermission: z.string().nullish(),
+  catalogCourseSubfield: z.string().nullish(),
+  catalogOutcomeDesc: z.string().nullish(),
+  acadCareer: z.string().nullish(),
+  acadGroup: z.string().nullish(),
 });
 
 // Storage Types
