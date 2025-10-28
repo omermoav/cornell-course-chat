@@ -1,5 +1,6 @@
 import { intentParser } from "./intent-parser";
 import { storage } from "./storage";
+import { aiService } from "./ai-service";
 import { AnswerResponse, ParsedQuestion, StoredCourse, QuestionIntent } from "@shared/schema";
 
 export class AnswerService {
@@ -17,7 +18,8 @@ export class AnswerService {
   private async buildAnswerFromCourse(
     course: StoredCourse,
     intent: QuestionIntent,
-    isOldData: boolean = false
+    isOldData: boolean = false,
+    userQuestion: string = ""
   ): Promise<AnswerResponse> {
     const history = await storage.getCourseHistory(course.subject, course.catalogNbr);
     const gradingBases = new Set<string>();
@@ -31,36 +33,52 @@ export class AnswerService {
 
     const classPageUrl = this.getClassPageUrl(course.rosterSlug, course.subject, course.catalogNbr);
 
+    const courseInfo = {
+      subject: course.subject,
+      catalogNbr: course.catalogNbr,
+      titleLong: course.titleLong,
+      
+      // Basic info
+      description: course.description,
+      gradingBasis: course.gradingBasis ? this.formatGradingBasis(course.gradingBasis) : undefined,
+      gradingBasisVariations: gradingBases.size > 1 ? Array.from(gradingBases) : undefined,
+      unitsMinimum: course.unitsMinimum,
+      unitsMaximum: course.unitsMaximum,
+      
+      // Schedule
+      instructors: course.instructors,
+      meetingPatterns: course.meetingPatterns,
+      
+      // Requirements
+      prerequisites: course.prerequisites,
+      outcomes: course.outcomes,
+      satisfiesRequirements: course.satisfiesRequirements,
+      breadthRequirements: course.breadthRequirements,
+      distributionCategories: course.distributionCategories,
+      forbiddenOverlaps: course.forbiddenOverlaps,
+      permissionRequired: course.permissionRequired,
+      
+      // History
+      lastTermsOffered: course.lastTermsOffered,
+    };
+
+    // Generate AI-powered answer
+    let aiAnswer: string | undefined;
+    try {
+      aiAnswer = await aiService.generateAnswer(
+        userQuestion,
+        { ...courseInfo, rosterDescr: course.rosterDescr },
+        intent
+      );
+    } catch (error) {
+      console.error("Failed to generate AI answer:", error);
+      // Continue without AI answer if it fails
+    }
+
     return {
       success: true,
-      courseInfo: {
-        subject: course.subject,
-        catalogNbr: course.catalogNbr,
-        titleLong: course.titleLong,
-        
-        // Basic info
-        description: course.description,
-        gradingBasis: course.gradingBasis ? this.formatGradingBasis(course.gradingBasis) : undefined,
-        gradingBasisVariations: gradingBases.size > 1 ? Array.from(gradingBases) : undefined,
-        unitsMinimum: course.unitsMinimum,
-        unitsMaximum: course.unitsMaximum,
-        
-        // Schedule
-        instructors: course.instructors,
-        meetingPatterns: course.meetingPatterns,
-        
-        // Requirements
-        prerequisites: course.prerequisites,
-        outcomes: course.outcomes,
-        satisfiesRequirements: course.satisfiesRequirements,
-        breadthRequirements: course.breadthRequirements,
-        distributionCategories: course.distributionCategories,
-        forbiddenOverlaps: course.forbiddenOverlaps,
-        permissionRequired: course.permissionRequired,
-        
-        // History
-        lastTermsOffered: course.lastTermsOffered,
-      },
+      aiAnswer,
+      courseInfo,
       rosterSlug: course.rosterSlug,
       rosterDescr: course.rosterDescr,
       isOldData,
@@ -111,7 +129,7 @@ export class AnswerService {
     const latestRoster = await storage.getLatestRoster();
     const isOldData = latestRoster ? latestCourse.rosterSlug !== latestRoster.slug : false;
 
-    return this.buildAnswerFromCourse(latestCourse, parsed.intent, isOldData);
+    return this.buildAnswerFromCourse(latestCourse, parsed.intent, isOldData, parsed.rawQuery);
   }
 }
 

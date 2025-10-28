@@ -154,6 +154,7 @@ export default function Home() {
 
             {status === "success" && currentAnswer?.courseInfo && (
               <AnswerCard
+                aiAnswer={currentAnswer.aiAnswer}
                 courseInfo={currentAnswer.courseInfo}
                 rosterSlug={currentAnswer.rosterSlug!}
                 rosterDescr={currentAnswer.rosterDescr!}

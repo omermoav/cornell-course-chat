@@ -1,4 +1,4 @@
-import { ExternalLink, BookOpen, Award, Users, Clock, Calendar, FileText, AlertCircle, CheckCircle, BookmarkCheck, Lightbulb } from "lucide-react";
+import { ExternalLink, BookOpen, Award, Users, Clock, Calendar, FileText, AlertCircle, CheckCircle, BookmarkCheck, Lightbulb, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ interface CourseInfo {
 }
 
 interface AnswerCardProps {
+  aiAnswer?: string;
   courseInfo: CourseInfo;
   rosterSlug: string;
   rosterDescr: string;
@@ -37,6 +38,7 @@ interface AnswerCardProps {
 }
 
 export default function AnswerCard({
+  aiAnswer,
   courseInfo,
   rosterSlug,
   rosterDescr,
@@ -86,6 +88,19 @@ export default function AnswerCard({
       </div>
 
       <CardContent className="px-6 md:px-8 py-6 space-y-6">
+        {/* AI-Powered Answer */}
+        {aiAnswer && (
+          <div className="space-y-3 p-5 rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20">
+            <div className="flex items-center gap-2 font-semibold text-primary">
+              <Sparkles className="h-5 w-5" />
+              <span>AI Answer</span>
+            </div>
+            <p className="text-base leading-relaxed font-medium" data-testid="text-ai-answer">
+              {aiAnswer}
+            </p>
+          </div>
+        )}
+
         {/* Course Description */}
         {courseInfo.description && (
           <div className="space-y-2">

@@ -136,6 +136,7 @@ export interface ParsedQuestion {
 
 export interface AnswerResponse {
   success: boolean;
+  aiAnswer?: string;
   courseInfo?: {
     subject: string;
     catalogNbr: string;
