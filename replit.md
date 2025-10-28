@@ -161,7 +161,17 @@ The application supports end-to-end testing with comprehensive verification:
 
 Respects Cornell API guidance of ≤1 request/second using p-queue with exponential backoff on failures.
 
-## Recent Changes (Latest: Cornell Tech Priority Ingestion)
+## Recent Changes (Latest: Grading Basis Improvements)
+
+**October 28, 2025 - User-Friendly Grading Basis Display:**
+- ✅ **Human-Readable Grading Explanations**: Replaced technical codes with clear descriptions
+  - **GRI** → "Letter Grades (A+, A, A-, B+, B, B-, C+, C, etc.)"
+  - **SUI** → "Satisfactory/Unsatisfactory (S/U)"
+  - **OPT/OPI** → "Student Option (choose Letter Grades or S/U)"
+  - **P/F** → "Pass/Fail"
+  - Created shared `formatGradingBasis()` utility for consistent display
+  - Applies to both AI answers and course information cards
+  - Example: "NBAY 6170 will be graded with letter grades (A+, A, A-, B+, B, B-, C+, C, etc.)"
 
 **October 28, 2025 - Cornell Tech Priority Ingestion:**
 - ✅ **Cornell Tech Priority Ingestion**: Created specialized fast-track ingestion for Cornell Tech courses
