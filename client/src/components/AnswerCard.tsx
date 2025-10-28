@@ -323,19 +323,29 @@ export default function AnswerCard({
           </>
         )}
 
-        {/* Official Link */}
+        {/* Official Link with Syllabus Access */}
         <Separator />
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            data-testid="button-view-class"
-            asChild
-            className="flex-1 h-12"
-          >
-            <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View on Official Cornell Class Roster
-            </a>
-          </Button>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <BookOpen className="h-4 w-4" />
+            <span>Syllabus & Official Details</span>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              data-testid="button-view-class"
+              asChild
+              className="flex-1 h-12"
+              variant="default"
+            >
+              <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View Syllabus & Full Details on Cornell
+              </a>
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Access course syllabuses, enrollment information, and additional details on the official Cornell Class Roster page.
+          </p>
         </div>
       </CardContent>
     </Card>
