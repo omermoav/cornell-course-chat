@@ -1,7 +1,7 @@
 import { intentParser } from "./intent-parser";
 import { storage } from "./storage";
 import { aiService } from "./ai-service";
-import { AnswerResponse, ParsedQuestion, StoredCourse, QuestionIntent } from "@shared/schema";
+import { AnswerResponse, ParsedQuestion, StoredCourse, QuestionIntent, ChatMessage } from "@shared/schema";
 import { formatGradingBasis } from "@shared/grading-utils";
 
 export class AnswerService {
@@ -14,7 +14,8 @@ export class AnswerService {
     course: StoredCourse,
     intent: QuestionIntent,
     isOldData: boolean = false,
-    userQuestion: string = ""
+    userQuestion: string = "",
+    conversationHistory?: ChatMessage[]
   ): Promise<AnswerResponse> {
     const history = await storage.getCourseHistory(course.subject, course.catalogNbr);
     const gradingBases = new Set<string>();
@@ -63,7 +64,8 @@ export class AnswerService {
       aiAnswer = await aiService.generateAnswer(
         userQuestion,
         { ...courseInfo, rosterDescr: course.rosterDescr },
-        intent
+        intent,
+        conversationHistory
       );
     } catch (error) {
       console.error("Failed to generate AI answer:", error);
@@ -82,7 +84,7 @@ export class AnswerService {
     };
   }
 
-  async answer(query: string): Promise<AnswerResponse> {
+  async answer(query: string, conversationHistory?: ChatMessage[]): Promise<AnswerResponse> {
     const parsed = intentParser.parse(query);
 
     // Try title search if no course code found
@@ -94,7 +96,7 @@ export class AnswerService {
         const stats = await storage.getStats();
         const availableData = `I have access to ${stats.courses} Cornell courses across ${stats.rosters} semesters, including subjects like CS (Computer Science), INFO (Information Science), NBAY (Cornell Tech), TECH (Cornell Tech), and many more.`;
         
-        const aiResponse = await aiService.handleBroadQuestion(query, availableData);
+        const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
         
         return {
           success: true,
@@ -114,7 +116,7 @@ export class AnswerService {
         // Single match - answer about that course
         const latestRoster = await storage.getLatestRoster();
         const isOldData = latestRoster ? matches[0].rosterSlug !== latestRoster.slug : false;
-        return this.buildAnswerFromCourse(matches[0], parsed.intent, isOldData, parsed.rawQuery);
+        return this.buildAnswerFromCourse(matches[0], parsed.intent, isOldData, parsed.rawQuery, conversationHistory);
       }
 
       // Multiple matches - show options
@@ -136,7 +138,7 @@ export class AnswerService {
 - Learning outcomes
 - All courses in a subject (e.g., "What CS courses are available?")`;
       
-      const aiResponse = await aiService.handleBroadQuestion(query, availableData);
+      const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
       
       return {
         success: true,
@@ -183,7 +185,7 @@ export class AnswerService {
         .join('\n');
 
       const availableData = `Subject: ${parsed.subject}\nTotal courses: ${uniqueCourses.size}\n\nSample courses:\n${courseList}`;
-      const aiResponse = await aiService.handleBroadQuestion(query, availableData);
+      const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
 
       return {
         success: true,
@@ -199,7 +201,8 @@ export class AnswerService {
     if (!latestCourse) {
       const aiResponse = await aiService.handleBroadQuestion(
         query,
-        `Course ${parsed.subject} ${parsed.catalogNbr} was not found in the database. This course may not exist, may not be currently offered, or may not be in the public catalog.`
+        `Course ${parsed.subject} ${parsed.catalogNbr} was not found in the database. This course may not exist, may not be currently offered, or may not be in the public catalog.`,
+        conversationHistory
       );
       
       return {
@@ -218,7 +221,7 @@ export class AnswerService {
     const latestRoster = await storage.getLatestRoster();
     const isOldData = latestRoster ? latestCourse.rosterSlug !== latestRoster.slug : false;
 
-    return this.buildAnswerFromCourse(latestCourse, parsed.intent, isOldData, parsed.rawQuery);
+    return this.buildAnswerFromCourse(latestCourse, parsed.intent, isOldData, parsed.rawQuery, conversationHistory);
   }
 }
 

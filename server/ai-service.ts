@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { QuestionIntent } from "@shared/schema";
+import { QuestionIntent, ChatMessage } from "@shared/schema";
 
 interface CourseContext {
   subject: string;
@@ -33,7 +33,11 @@ export class AIService {
     });
   }
 
-  async handleBroadQuestion(userQuestion: string, availableData: string): Promise<string> {
+  async handleBroadQuestion(
+    userQuestion: string, 
+    availableData: string,
+    conversationHistory?: ChatMessage[]
+  ): Promise<string> {
     try {
       const systemPrompt = `You are a helpful Cornell University course advisor with access to the Cornell Class Roster API data. 
 
@@ -41,6 +45,7 @@ Your role:
 1. Answer questions about Cornell courses using the data provided
 2. For questions you CAN'T answer with the data, acknowledge this politely and suggest related questions you CAN answer
 3. Be MECE (Mutually Exclusive, Collectively Exhaustive) - provide complete, organized answers
+4. When continuing a conversation, remember the context and answer follow-up questions naturally
 
 Example helpful responses when data is unavailable:
 - "I don't have information about majors/programs, but I can help you explore courses! Try asking: 'What CS courses are offered?' or 'Tell me about NBAY 6170'"
@@ -48,12 +53,29 @@ Example helpful responses when data is unavailable:
 
 Keep answers conversational and helpful.`;
 
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: "system", content: systemPrompt },
+      ];
+
+      // Add conversation history if available
+      if (conversationHistory && conversationHistory.length > 0) {
+        for (const msg of conversationHistory) {
+          messages.push({
+            role: msg.role,
+            content: msg.content,
+          });
+        }
+      }
+
+      // Add current question
+      messages.push({
+        role: "user",
+        content: `Available Data:\n${availableData}\n\nStudent Question: ${userQuestion}`,
+      });
+
       const completion = await this.openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Available Data:\n${availableData}\n\nStudent Question: ${userQuestion}` },
-        ],
+        messages,
         temperature: 0.8,
         max_tokens: 500,
       });
@@ -68,7 +90,8 @@ Keep answers conversational and helpful.`;
   async generateAnswer(
     userQuestion: string,
     courseContext: CourseContext,
-    intent: QuestionIntent
+    intent: QuestionIntent,
+    conversationHistory?: ChatMessage[]
   ): Promise<string> {
     try {
       // Build comprehensive course context
@@ -149,16 +172,34 @@ Critical Rules:
 - Keep answers brief (2-4 sentences) but factually accurate
 - Never add generic explanations or interpretations
 - If data is missing for what's asked, say so directly
-- Be conversational but stick strictly to the facts provided`;
+- Be conversational but stick strictly to the facts provided
+- When continuing a conversation, remember the context and answer follow-up questions naturally`;
 
       const courseInfo = contextParts.join('\n');
 
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: "system", content: systemPrompt },
+      ];
+
+      // Add conversation history if available
+      if (conversationHistory && conversationHistory.length > 0) {
+        for (const msg of conversationHistory) {
+          messages.push({
+            role: msg.role,
+            content: msg.content,
+          });
+        }
+      }
+
+      // Add current question with context
+      messages.push({
+        role: "user",
+        content: `Course Information:\n${courseInfo}\n\nStudent Question: ${userQuestion}`,
+      });
+
       const completion = await this.openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Course Information:\n${courseInfo}\n\nStudent Question: ${userQuestion}` },
-        ],
+        messages,
         temperature: 0.7,
         max_tokens: 200,
       });

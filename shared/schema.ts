@@ -186,6 +186,17 @@ export interface ParsedQuestion {
   titleQuery?: string;
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: number;
+}
+
+export interface ConversationRequest {
+  question: string;
+  conversationHistory?: ChatMessage[];
+}
+
 export interface AnswerResponse {
   success: boolean;
   aiAnswer?: string;

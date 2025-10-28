@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Natural language question answering
   app.post("/api/ask", async (req, res) => {
     try {
-      const { question } = req.body;
+      const { question, conversationHistory } = req.body;
 
       if (!question || typeof question !== "string") {
         return res.status(400).json({
@@ -108,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const answer = await answerService.answer(question);
+      const answer = await answerService.answer(question, conversationHistory);
       res.json(answer);
     } catch (error) {
       res.status(500).json({
