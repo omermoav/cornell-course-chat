@@ -113,9 +113,41 @@ Respects Cornell API guidance of ≤1 request/second using p-queue with exponent
 
 ## Recent Changes
 
-- Implemented full backend data ingestion pipeline
-- Created deterministic intent parser for natural language queries
-- Built answer service with latest-data resolution and provenance tracking
-- Connected frontend to real API, removed all mock data
-- Added Cornell branding with Carnelian Red primary color
-- Enhanced UI with gradients, animations, and improved visual hierarchy
+- ✅ Implemented full backend data ingestion pipeline with instructor and meeting pattern extraction
+- ✅ Created deterministic intent parser (2-5 letter subjects, 4-digit catalog numbers, prevents false positives)
+- ✅ Built answer service with latest-data resolution and provenance tracking
+- ✅ Connected frontend to real API, removed all mock data
+- ✅ Added Cornell branding with Carnelian Red primary color (#B31B1B)
+- ✅ Enhanced UI with gradients, animations, and improved visual hierarchy
+- ✅ Fixed schema to handle nullable fields from Cornell API (using .nullish())
+- ✅ Comprehensive end-to-end testing completed - all functionality verified
+
+## Implementation Status
+
+**Backend**: ✅ Complete
+- Cornell API client with rate limiting (≤1 req/sec)
+- Data ingestion service (all 46 rosters)
+- Intent parser with robust course code extraction
+- Answer service with latest-data resolution
+- REST API endpoints fully functional
+
+**Frontend**: ✅ Complete
+- React SPA with Cornell branding
+- Search interface with recent queries
+- Answer cards with sectioned layout
+- Provenance badges showing data source
+- Dark/light mode support
+- Responsive mobile-first design
+
+**Testing**: ✅ Complete
+- End-to-end playwright tests passed
+- All UI interactions verified
+- Error handling tested
+- Theme toggle validated
+- No console errors or crashes
+
+## Known Limitations
+
+1. **Data Ingestion Time**: Full ingestion of all 46 rosters takes several hours due to 1 req/sec rate limit
+2. **In-Memory Storage**: Data is cleared on server restart (restart ingestion if needed)
+3. **Historical Data**: Some queries may return "No roster history" until more rosters are ingested
