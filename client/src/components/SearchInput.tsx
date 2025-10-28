@@ -56,12 +56,23 @@ export default function SearchInput({
           `} />
           
           <div className="relative bg-background rounded-2xl shadow-2xl border-2 border-border">
-            <Search 
-              className={`
-                absolute left-5 top-1/2 -translate-y-1/2 h-6 w-6 transition-all duration-300
-                ${isFocused ? 'text-primary scale-110' : 'text-muted-foreground'}
-              `} 
-            />
+            <Button
+              data-testid="button-search"
+              type="submit"
+              size="icon"
+              disabled={isLoading || !query.trim()}
+              className="
+                absolute left-3 top-1/2 -translate-y-1/2 
+                h-12 w-12 rounded-full
+                disabled:opacity-40
+              "
+            >
+              {isLoading ? (
+                <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+              ) : (
+                <Search className="h-5 w-5" />
+              )}
+            </Button>
             
             <Input
               ref={inputRef}
@@ -73,31 +84,13 @@ export default function SearchInput({
               onBlur={() => setIsFocused(false)}
               placeholder={placeholderText}
               className="
-                h-20 pl-16 pr-40 text-lg rounded-2xl
+                h-20 pl-20 pr-6 text-lg rounded-2xl
                 border-0 focus-visible:ring-0
                 placeholder:text-muted-foreground/60
                 transition-all duration-300
               "
               disabled={isLoading}
             />
-
-            <Button
-              data-testid="button-search"
-              type="submit"
-              size="icon"
-              disabled={isLoading || !query.trim()}
-              className="
-                absolute right-3 top-1/2 -translate-y-1/2 
-                h-12 w-12 rounded-full
-                disabled:opacity-40
-              "
-            >
-              {isLoading ? (
-                <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-              ) : (
-                <Search className="h-5 w-5" />
-              )}
-            </Button>
           </div>
         </div>
 
