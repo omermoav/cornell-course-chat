@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import ProvenanceBadge from "./ProvenanceBadge";
 import { Separator } from "@/components/ui/separator";
 import type { QuestionIntent } from "@shared/schema";
+import { formatGradingBasis } from "@shared/grading-utils";
 
 interface CourseInfo {
   subject: string;
@@ -46,14 +47,6 @@ export default function AnswerCard({
   classPageUrl,
   answerType
 }: AnswerCardProps) {
-  const formatGradingBasis = (basis?: string) => {
-    if (!basis) return "Not specified";
-    if (basis === "Student Option") return "Student Option (Letter or S/U)";
-    if (basis.includes("S/U") || basis.includes("Satisfactory/Unsatisfactory")) return "S/U only";
-    if (basis === "Letter" && !basis.includes("Option")) return "Letter only";
-    return basis;
-  };
-
   return (
     <Card data-testid="card-answer" className="shadow-lg border-2 overflow-hidden animate-fade-in">
       {/* Header with gradient background */}

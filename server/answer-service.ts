@@ -2,14 +2,9 @@ import { intentParser } from "./intent-parser";
 import { storage } from "./storage";
 import { aiService } from "./ai-service";
 import { AnswerResponse, ParsedQuestion, StoredCourse, QuestionIntent } from "@shared/schema";
+import { formatGradingBasis } from "@shared/grading-utils";
 
 export class AnswerService {
-  private formatGradingBasis(basis: string): string {
-    if (basis === "Student Option") return "Student Option (Letter or S/U)";
-    if (basis.includes("S/U") || basis.includes("Satisfactory/Unsatisfactory")) return "S/U only";
-    if (basis === "Letter" && !basis.includes("Option")) return "Letter only";
-    return basis;
-  }
 
   private getClassPageUrl(rosterSlug: string, subject: string, catalogNbr: string): string {
     return `https://classes.cornell.edu/browse/roster/${rosterSlug}/class/${subject}/${catalogNbr}`;
@@ -27,7 +22,7 @@ export class AnswerService {
     const sameRosterCourses = history.filter(c => c.rosterSlug === course.rosterSlug);
     for (const c of sameRosterCourses) {
       if (c.gradingBasis) {
-        gradingBases.add(this.formatGradingBasis(c.gradingBasis));
+        gradingBases.add(formatGradingBasis(c.gradingBasis));
       }
     }
 
@@ -40,7 +35,7 @@ export class AnswerService {
       
       // Basic info
       description: course.description,
-      gradingBasis: course.gradingBasis ? this.formatGradingBasis(course.gradingBasis) : undefined,
+      gradingBasis: course.gradingBasis ? formatGradingBasis(course.gradingBasis) : undefined,
       gradingBasisVariations: gradingBases.size > 1 ? Array.from(gradingBases) : undefined,
       unitsMinimum: course.unitsMinimum,
       unitsMaximum: course.unitsMaximum,
