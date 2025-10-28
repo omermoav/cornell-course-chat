@@ -25,9 +25,10 @@ This application indexes all available Cornell Class Rosters and provides instan
 **Core Services:**
 - `cornell-api.ts`: Rate-limited API client (≤1 req/sec) with retry logic
 - `ingestion.ts`: Comprehensive data extraction from all rosters → subjects → classes, capturing ALL catalog fields
-- `storage.ts`: In-memory storage for complete course metadata
-- `intent-parser.ts`: Enhanced parser detecting course codes and question intent (prerequisites, outcomes, requirements, etc.)
-- `answer-service.ts`: Returns complete course information with latest data and provenance
+- `storage.ts`: In-memory storage with searchByTitle() for course name searches
+- `intent-parser.ts`: Enhanced parser detecting course codes, course titles, and question intent
+- `ai-service.ts`: OpenAI integration generating factual, context-aware answers
+- `answer-service.ts`: Returns complete course information with AI answers and provenance
 
 **API Endpoints:**
 - `GET /api/ping` - Health check with storage stats
@@ -42,7 +43,7 @@ This application indexes all available Cornell Class Rosters and provides instan
 
 **Components:**
 - `SearchInput`: Enhanced search with recent queries and example questions
-- `AnswerCard`: **Comprehensive display** with all course information in beautiful sectioned layout
+- `AnswerCard`: **Comprehensive display** with AI answer at top, all course information in beautiful sectioned layout
 - `ProvenanceBadge`: Shows which roster term the answer came from
 - `StatusMessage`: Loading, error, and not found states
 - `ThemeToggle`: Dark/light mode support
@@ -80,13 +81,29 @@ Supports comprehensive question types:
 
 ## Key Features
 
-1. **Comprehensive Information Display**
+1. **AI-Powered Conversational Answers** ✨ NEW
+   - OpenAI GPT-4o-mini generates contextual, conversational responses
+   - AI answers appear prominently at top of answer card
+   - **Factual and specific**: Uses ONLY actual course data without generic interpretations
+   - Example: "NBAY 6170 is taught by Lutz Finger" (not "typically taught by...")
+   - Directly addresses the user's specific question
+   - Gradient background with sparkles icon for visual distinction
+
+2. **Search by Course Code OR Course Title** ✨ NEW
+   - Search by course code: "NBAY 6170", "CS 4780"
+   - **Search by course name**: "Designing & Building AI Solutions", "Introduction to Machine Learning"
+   - **Search by partial title**: "Building AI Solutions" finds full course
+   - Smart matching: exact matches prioritized, then starts-with, then contains
+   - Single match: instant answer; multiple matches: shows options
+
+3. **Comprehensive Information Display**
    - ALL available data shown automatically in answer card
    - No need to click external links for basic information
    - Beautiful sectioned layout with icons and clear hierarchy
    - Information only shown if available (no empty sections)
 
-2. **MECE Organization**
+4. **MECE Organization**
+   - AI Answer section (first, most prominent)
    - Course Description section
    - Quick Facts grid (Credits, Grading Basis)
    - Schedule & Instructors section
@@ -96,17 +113,17 @@ Supports comprehensive question types:
    - Offering History section
    - Single external link to official Cornell Class Roster (for verification and NetID-gated content)
 
-3. **Latest Data Resolution**
+5. **Latest Data Resolution**
    - Ranks rosters by (year, termCode)
    - Always answers from most recent term with data
    - Shows "Note: Using most recent available data" if course not in latest roster
 
-4. **Grading Basis Handling**
+6. **Grading Basis Handling**
    - Maps API values to human-readable format
    - Detects section variations within same term
    - Shows "Varies by section" with list of bases
 
-5. **Provenance & Compliance**
+7. **Provenance & Compliance**
    - Every answer includes visible source badge
    - Deep links to official class roster pages
    - No syllabus PDF mirroring (NetID-gated)
@@ -143,8 +160,23 @@ The application supports end-to-end testing with comprehensive verification:
 
 Respects Cornell API guidance of ≤1 request/second using p-queue with exponential backoff on failures.
 
-## Recent Changes (Latest: MECE Comprehensive Chatbot)
+## Recent Changes (Latest: AI Answers + Title Search)
 
+**October 28, 2025 - AI-Powered Answers & Title Search:**
+- ✅ **AI-Powered Answers**: Integrated OpenAI GPT-4o-mini for conversational, factual answers
+  - AI answers appear prominently at top of answer card with sparkles icon
+  - Improved AI prompt to provide **specific, factual** responses based on actual course data
+  - Example: "NBAY 6170 is taught by Lutz Finger" (not "typically taught by...")
+  - No generic interpretations - only facts from the course data
+- ✅ **Search by Course Title**: Added ability to search by course name, not just course code
+  - Search by full title: "Designing & Building AI Solutions"
+  - Search by partial title: "Building AI Solutions"
+  - Smart matching: exact → starts-with → contains
+  - Single match: instant answer; multiple matches: shows options
+- ✅ Enhanced storage with `searchByTitle()` method for efficient course name lookups
+- ✅ Updated intent parser to extract course titles from natural language queries
+
+**Previous - MECE Comprehensive Chatbot:**
 - ✅ **MAJOR**: Transformed into MECE chatbot that displays ALL course information automatically
 - ✅ Enhanced schema with comprehensive catalog fields: description, prerequisites, outcomes, requirements, breadth, distribution
 - ✅ Updated ingestion to extract ALL available course metadata from Cornell API
@@ -159,12 +191,15 @@ Respects Cornell API guidance of ≤1 request/second using p-queue with exponent
 **Backend**: ✅ Complete & Comprehensive
 - Cornell API client with rate limiting
 - Full data ingestion with ALL catalog fields
-- Enhanced intent parser (10 intent types)
+- Enhanced intent parser (10 intent types + course title extraction)
+- AI-powered answer generation (OpenAI GPT-4o-mini)
+- Search by course title or course code
 - Comprehensive answer service
 - REST API endpoints fully functional
 
 **Frontend**: ✅ Complete & Comprehensive
 - React SPA with Cornell branding
+- AI answer section at top with gradient background and sparkles icon
 - Comprehensive answer cards with sectioned layout
 - All course data displayed automatically
 - Enhanced intent-aware responses
