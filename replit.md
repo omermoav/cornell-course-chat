@@ -43,7 +43,7 @@ This application indexes all available Cornell Class Rosters and provides instan
 ### Frontend (React + Tailwind + Shadcn UI)
 
 **Components:**
-- `SearchInput`: Enhanced search with recent queries and example questions
+- `SearchInput`: **Premium search experience** with animated focus effects, categorized example questions, recent searches, and clear visual feedback
 - `AnswerCard`: **Comprehensive display** with AI answer at top, all course information in beautiful sectioned layout
 - `ProvenanceBadge`: Shows which roster term the answer came from
 - `StatusMessage`: Loading, error, and not found states
@@ -161,7 +161,25 @@ The application supports end-to-end testing with comprehensive verification:
 
 Respects Cornell API guidance of ≤1 request/second using p-queue with exponential backoff on failures.
 
-## Recent Changes (Latest: Grading Basis Improvements)
+## Recent Changes (Latest: Search Bar UX Improvements)
+
+**October 28, 2025 - Premium Search Bar Experience:**
+- ✅ **Completely Redesigned Search Interface**: Modern, polished search experience
+  - **Animated focus effects**: Gradient glow and scale animation when focused
+  - **Clear button**: X icon appears to quickly clear search text
+  - **Dynamic placeholder**: Changes to show examples when focused
+  - **Categorized example questions**: 5 beautiful cards with icons showing different query types
+    - Overview (Sparkles icon): "What is NBAY 6170?"
+    - Grading (GraduationCap icon): "Is CS 4780 pass/fail?"
+    - Schedule (Calendar icon): "When does INFO 2950 meet?"
+    - Requirements (BookOpen icon): "Prerequisites for ORIE 3500?"
+    - Outcomes (FileText icon): "Learning outcomes for TECH 5100?"
+  - **Enhanced recent searches**: Shows last 5 searches with clock icons and clear button
+  - **Search hints**: Explains you can search by course code or course name
+  - **Visual polish**: Larger input (80px height), rounded corners, shadow effects, smooth transitions
+  - **Better loading states**: Spinning icon with "Searching" text
+- ✅ **Verified non-existent courses**: Investigated NBAY 6120 - confirmed it doesn't exist in Cornell API (FA24, SP25, FA25)
+- ✅ **End-to-end testing completed**: All UI interactions verified with dark mode support
 
 **October 28, 2025 - User-Friendly Grading Basis Display:**
 - ✅ **Human-Readable Grading Explanations**: Replaced technical codes with clear descriptions
