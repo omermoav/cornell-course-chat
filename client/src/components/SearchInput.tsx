@@ -52,6 +52,7 @@ export default function SearchInput({
           <div className={`
             absolute inset-0 rounded-2xl transition-opacity duration-300
             bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 blur-xl
+            pointer-events-none
             ${isFocused ? 'opacity-100' : 'opacity-0'}
           `} />
           
