@@ -1,24 +1,30 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import SearchInput from "@/components/SearchInput";
 import AnswerCard from "@/components/AnswerCard";
 import StatusMessage from "@/components/StatusMessage";
 import ThemeToggle from "@/components/ThemeToggle";
 import { GraduationCap } from "lucide-react";
-import type { AnswerResponse } from "@shared/schema";
+import type { AnswerResponse, ChatMessage } from "@shared/schema";
 
 export default function Home() {
-  const [currentAnswer, setCurrentAnswer] = useState<AnswerResponse | null>(null);
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string; answer?: AnswerResponse }>>([]);
   const [recentQueries, setRecentQueries] = useState<string[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const searchMutation = useMutation({
-    mutationFn: async (question: string) => {
+    mutationFn: async ({ question, conversationHistory }: { question: string; conversationHistory?: ChatMessage[] }) => {
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, conversationHistory }),
       });
 
       if (!response.ok) {
@@ -27,15 +33,30 @@ export default function Home() {
 
       return await response.json() as AnswerResponse;
     },
-    onSuccess: (data) => {
-      setCurrentAnswer(data);
+    onSuccess: (data, variables) => {
+      // Add assistant's response to messages
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: data.aiAnswer || data.message || 'No response',
+          answer: data,
+        }
+      ]);
     },
     onError: (error) => {
       console.error("Search error:", error);
-      setCurrentAnswer({
-        success: false,
-        error: "Failed to connect to the server. Please try again later.",
-      });
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: "Failed to connect to the server. Please try again later.",
+          answer: {
+            success: false,
+            error: "Failed to connect to the server. Please try again later.",
+          }
+        }
+      ]);
     },
   });
 
@@ -48,7 +69,20 @@ export default function Home() {
       return [query, ...filtered].slice(0, 5);
     });
 
-    searchMutation.mutate(query);
+    // Add user message to messages
+    setMessages(prev => [
+      ...prev,
+      { role: 'user', content: query }
+    ]);
+
+    // Build conversation history from previous messages (excluding the one we just added)
+    const conversationHistory: ChatMessage[] = messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+      timestamp: Date.now(),
+    }));
+
+    searchMutation.mutate({ question: query, conversationHistory });
   };
 
   const handleClearRecent = () => {
@@ -56,30 +90,10 @@ export default function Home() {
     console.log('Recent queries cleared');
   };
 
-  const getStatusType = () => {
-    if (searchMutation.isPending) return "loading";
-    if (!currentAnswer) return "idle";
-    
-    if (currentAnswer.success && currentAnswer.courseInfo) {
-      return "success";
-    }
-    
-    if (currentAnswer.message?.includes("pass rates")) {
-      return "passRatePolicy";
-    }
-    
-    if (currentAnswer.error?.includes("No roster history")) {
-      return "notFound";
-    }
-    
-    if (!currentAnswer.success) {
-      return "error";
-    }
-    
-    return "idle";
+  const handleClearConversation = () => {
+    setMessages([]);
+    console.log('Conversation cleared');
   };
-
-  const status = getStatusType();
 
   return (
     <div className="min-h-screen bg-background">
@@ -121,86 +135,91 @@ export default function Home() {
             onClearRecent={handleClearRecent}
           />
 
-          {/* Results Section */}
-          <div className="max-w-4xl mx-auto">
-            {status === "idle" && (
+          {/* Conversation Display */}
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Show empty state if no messages */}
+            {messages.length === 0 && !searchMutation.isPending && (
               <StatusMessage type="empty" />
             )}
 
-            {status === "loading" && (
-              <StatusMessage type="loading" />
-            )}
-
-            {status === "error" && currentAnswer && (
-              <StatusMessage 
-                type="error" 
-                message={currentAnswer.error}
-              />
-            )}
-
-            {status === "notFound" && currentAnswer && (
-              <StatusMessage 
-                type="notFound" 
-                courseCode={currentAnswer.error?.match(/for ([A-Z]+ \d+)/)?.[1] || ""}
-              />
-            )}
-
-            {status === "passRatePolicy" && currentAnswer && (
-              <StatusMessage 
-                type="passRatePolicy"
-                classPageUrl={currentAnswer.classPageUrl}
-              />
-            )}
-
-            {status === "success" && currentAnswer?.courseInfo && (
-              <AnswerCard
-                aiAnswer={currentAnswer.aiAnswer}
-                courseInfo={currentAnswer.courseInfo}
-                rosterSlug={currentAnswer.rosterSlug!}
-                rosterDescr={currentAnswer.rosterDescr!}
-                isOldData={currentAnswer.isOldData}
-                classPageUrl={currentAnswer.classPageUrl!}
-                answerType={currentAnswer.answerType || "general"}
-              />
-            )}
-
-            {/* General AI Answer with Suggestions */}
-            {currentAnswer?.success && currentAnswer?.aiAnswer && !currentAnswer?.courseInfo && (
-              <div className="space-y-6">
-                {/* AI Answer Card */}
-                <div className="rounded-2xl border-2 border-border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl p-8">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <GraduationCap className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="text-lg font-semibold">Answer</h3>
-                    </div>
-                    <p className="text-base leading-relaxed whitespace-pre-wrap">{currentAnswer.aiAnswer}</p>
+            {/* Display messages */}
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`space-y-4 ${msg.role === 'user' ? 'flex justify-end' : ''}`}>
+                {msg.role === 'user' ? (
+                  /* User Message */
+                  <div data-testid={`message-user-${idx}`} className="max-w-3xl rounded-2xl bg-primary/10 border border-primary/20 px-6 py-4">
+                    <p className="text-base font-medium">{msg.content}</p>
                   </div>
-                </div>
+                ) : (
+                  /* Assistant Message */
+                  <div data-testid={`message-assistant-${idx}`} className="w-full space-y-4">
+                    {/* Full Course Card */}
+                    {msg.answer?.courseInfo && (
+                      <AnswerCard
+                        aiAnswer={msg.answer.aiAnswer}
+                        courseInfo={msg.answer.courseInfo}
+                        rosterSlug={msg.answer.rosterSlug!}
+                        rosterDescr={msg.answer.rosterDescr!}
+                        isOldData={msg.answer.isOldData}
+                        classPageUrl={msg.answer.classPageUrl!}
+                        answerType={msg.answer.answerType || "general"}
+                      />
+                    )}
 
-                {/* Suggestions */}
-                {currentAnswer.suggestions && currentAnswer.suggestions.length > 0 && (
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                      <span>Try asking:</span>
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {currentAnswer.suggestions.map((suggestion, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleSearch(suggestion)}
-                          className="text-left p-4 rounded-xl border-2 border-border bg-card hover-elevate active-elevate-2 transition-all"
-                        >
-                          <p className="text-sm font-medium">{suggestion}</p>
-                        </button>
-                      ))}
-                    </div>
+                    {/* General Answer (no specific course) */}
+                    {msg.answer?.success && msg.content && !msg.answer?.courseInfo && (
+                      <div className="rounded-2xl border-2 border-border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl p-8">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <GraduationCap className="h-5 w-5 text-primary" />
+                            </div>
+                            <h3 className="text-lg font-semibold">Answer</h3>
+                          </div>
+                          <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        </div>
+
+                        {/* Suggestions */}
+                        {msg.answer.suggestions && msg.answer.suggestions.length > 0 && (
+                          <div className="mt-6 space-y-4">
+                            <h4 className="text-sm font-semibold text-muted-foreground">
+                              Try asking:
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {msg.answer.suggestions.map((suggestion, sidx) => (
+                                <button
+                                  key={sidx}
+                                  data-testid={`suggestion-${idx}-${sidx}`}
+                                  onClick={() => handleSearch(suggestion)}
+                                  className="text-left p-4 rounded-xl border-2 border-border bg-card hover-elevate active-elevate-2 transition-all"
+                                >
+                                  <p className="text-sm font-medium">{suggestion}</p>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Error Messages */}
+                    {msg.answer && !msg.answer.success && (
+                      <div className="rounded-2xl border-2 border-destructive/50 bg-destructive/10 p-6">
+                        <p className="text-base text-destructive">{msg.answer.error || msg.content}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
+            ))}
+
+            {/* Loading State */}
+            {searchMutation.isPending && (
+              <StatusMessage type="loading" />
             )}
+
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </div>
         </div>
       </main>
@@ -218,10 +237,19 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              {currentAnswer?.rosterDescr && (
+              {messages.length > 0 && messages[messages.length - 1]?.answer?.rosterDescr && (
                 <div className="px-3 py-1.5 rounded-full bg-muted/50">
-                  {currentAnswer.rosterDescr}
+                  {messages[messages.length - 1]?.answer?.rosterDescr}
                 </div>
+              )}
+              {messages.length > 1 && (
+                <button
+                  onClick={handleClearConversation}
+                  data-testid="button-clear-conversation"
+                  className="px-3 py-1.5 rounded-full bg-muted/50 hover-elevate active-elevate-2 transition-all"
+                >
+                  Clear Conversation
+                </button>
               )}
             </div>
           </div>
