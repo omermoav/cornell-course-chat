@@ -224,4 +224,6 @@ export interface AnswerResponse {
   answerType?: QuestionIntent;
   message?: string;
   error?: string;
+  suggestions?: string[]; // Suggested follow-up questions
+  courseList?: StoredCourse[]; // List of courses for browse queries
 }

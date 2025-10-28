@@ -33,6 +33,38 @@ export class AIService {
     });
   }
 
+  async handleBroadQuestion(userQuestion: string, availableData: string): Promise<string> {
+    try {
+      const systemPrompt = `You are a helpful Cornell University course advisor with access to the Cornell Class Roster API data. 
+
+Your role:
+1. Answer questions about Cornell courses using the data provided
+2. For questions you CAN'T answer with the data, acknowledge this politely and suggest related questions you CAN answer
+3. Be MECE (Mutually Exclusive, Collectively Exhaustive) - provide complete, organized answers
+
+Example helpful responses when data is unavailable:
+- "I don't have information about majors/programs, but I can help you explore courses! Try asking: 'What CS courses are offered?' or 'Tell me about NBAY 6170'"
+- "I can't answer that specific question, but I can tell you about: course descriptions, prerequisites, grading, schedules, instructors, and learning outcomes. Try asking about a specific course!"
+
+Keep answers conversational and helpful.`;
+
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Available Data:\n${availableData}\n\nStudent Question: ${userQuestion}` },
+        ],
+        temperature: 0.8,
+        max_tokens: 500,
+      });
+
+      return completion.choices[0]?.message?.content || "I couldn't generate an answer at this time.";
+    } catch (error) {
+      console.error("AI service error:", error);
+      return "I couldn't generate an answer at this time.";
+    }
+  }
+
   async generateAnswer(
     userQuestion: string,
     courseContext: CourseContext,

@@ -29,11 +29,11 @@ export default function SearchInput({
   };
 
   const exampleQuestions = [
-    { icon: Sparkles, text: "What is NBAY 6170?", category: "overview" },
+    { icon: Sparkles, text: "What is NBAY 6170?", category: "course-details" },
     { icon: GraduationCap, text: "Is CS 4780 pass/fail?", category: "grading" },
-    { icon: Calendar, text: "When does INFO 2950 meet?", category: "schedule" },
+    { icon: Calendar, text: "What CS courses are offered?", category: "browse" },
     { icon: BookOpen, text: "Prerequisites for ORIE 3500?", category: "requirements" },
-    { icon: FileText, text: "Learning outcomes for TECH 5100?", category: "outcomes" }
+    { icon: FileText, text: "Tell me about machine learning courses", category: "general" }
   ];
 
   const placeholderText = isFocused 

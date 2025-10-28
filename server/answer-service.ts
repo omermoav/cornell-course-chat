@@ -90,9 +90,23 @@ export class AnswerService {
       const matches = await storage.searchByTitle(parsed.titleQuery);
       
       if (matches.length === 0) {
+        // Use AI to handle the broad question
+        const stats = await storage.getStats();
+        const availableData = `I have access to ${stats.courses} Cornell courses across ${stats.rosters} semesters, including subjects like CS (Computer Science), INFO (Information Science), NBAY (Cornell Tech), TECH (Cornell Tech), and many more.`;
+        
+        const aiResponse = await aiService.handleBroadQuestion(query, availableData);
+        
         return {
-          success: false,
-          error: `Could not find any courses matching "${parsed.titleQuery}". Try using a course code like 'NBAY 5500' or 'CS 4780'.`,
+          success: true,
+          aiAnswer: aiResponse,
+          answerType: 'general',
+          suggestions: [
+            "What is NBAY 6170?",
+            "Is CS 4780 pass/fail?",
+            "What courses does INFO offer?",
+            "Prerequisites for ORIE 3500?",
+            "When does CS 2110 meet?"
+          ]
         };
       }
 
@@ -111,28 +125,71 @@ export class AnswerService {
       };
     }
 
-    // Validate we have enough information
+    // Handle broad questions without specific course info
     if (!intentParser.isValid(parsed)) {
+      const stats = await storage.getStats();
+      const availableData = `I have access to ${stats.courses} Cornell courses across ${stats.rosters} semesters. I can help you with:
+- Course descriptions and details (e.g., "What is NBAY 6170?")
+- Grading information (e.g., "Is CS 4780 pass/fail?")
+- Prerequisites and requirements
+- Course schedules and instructors
+- Learning outcomes
+- All courses in a subject (e.g., "What CS courses are available?")`;
+      
+      const aiResponse = await aiService.handleBroadQuestion(query, availableData);
+      
       return {
-        success: false,
-        error: "Could not identify a course code or course name in your question. Try using a course code like 'NBAY 5500' or a course name like 'Designing & Building AI Solutions'.",
+        success: true,
+        aiAnswer: aiResponse,
+        answerType: 'general',
+        suggestions: [
+          "What is NBAY 6170?",
+          "Is CS 4780 pass/fail?",
+          "What INFO courses are offered?",
+          "Tell me about machine learning courses",
+          "Prerequisites for CS 2110?"
+        ]
       };
     }
 
     // Handle subject-only queries
     if (parsed.subject && !parsed.catalogNbr) {
-      const courses = await storage.getCoursesBySubject(parsed.subject, 5);
+      const courses = await storage.getCoursesBySubject(parsed.subject, 100);
       
       if (courses.length === 0) {
         return {
           success: false,
-          error: `No courses found for subject ${parsed.subject}.`,
+          error: `No courses found for subject ${parsed.subject}. Try asking about other subjects like CS, INFO, NBAY, or TECH.`,
+          suggestions: [
+            "What CS courses are available?",
+            "Tell me about INFO courses",
+            "What is NBAY 6170?"
+          ]
         };
       }
 
+      // Group by catalog number to get unique courses
+      const uniqueCourses = new Map<string, StoredCourse>();
+      for (const course of courses) {
+        const key = `${course.subject}-${course.catalogNbr}`;
+        if (!uniqueCourses.has(key)) {
+          uniqueCourses.set(key, course);
+        }
+      }
+
+      const courseList = Array.from(uniqueCourses.values())
+        .slice(0, 20)
+        .map(c => `${c.subject} ${c.catalogNbr} - ${c.titleLong}`)
+        .join('\n');
+
+      const availableData = `Subject: ${parsed.subject}\nTotal courses: ${uniqueCourses.size}\n\nSample courses:\n${courseList}`;
+      const aiResponse = await aiService.handleBroadQuestion(query, availableData);
+
       return {
         success: true,
-        message: `Found ${courses.length} courses in ${parsed.subject}. Here are the most recent offerings:`,
+        aiAnswer: aiResponse,
+        answerType: 'general',
+        courseList: Array.from(uniqueCourses.values()).slice(0, 20),
       };
     }
 
@@ -140,9 +197,20 @@ export class AnswerService {
     const latestCourse = await storage.getLatestCourse(parsed.subject!, parsed.catalogNbr!);
 
     if (!latestCourse) {
+      const aiResponse = await aiService.handleBroadQuestion(
+        query,
+        `Course ${parsed.subject} ${parsed.catalogNbr} was not found in the database. This course may not exist, may not be currently offered, or may not be in the public catalog.`
+      );
+      
       return {
         success: false,
-        error: `No roster history found for ${parsed.subject} ${parsed.catalogNbr}. This may be a new course or there's no public data yet.`,
+        error: `No roster history found for ${parsed.subject} ${parsed.catalogNbr}.`,
+        aiAnswer: aiResponse,
+        suggestions: [
+          `What ${parsed.subject} courses are available?`,
+          "What is NBAY 6170?",
+          "Tell me about CS courses",
+        ]
       };
     }
 

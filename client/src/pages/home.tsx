@@ -163,6 +163,44 @@ export default function Home() {
                 answerType={currentAnswer.answerType || "general"}
               />
             )}
+
+            {/* General AI Answer with Suggestions */}
+            {currentAnswer?.success && currentAnswer?.aiAnswer && !currentAnswer?.courseInfo && (
+              <div className="space-y-6">
+                {/* AI Answer Card */}
+                <div className="rounded-2xl border-2 border-border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl p-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <GraduationCap className="h-5 w-5 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-semibold">Answer</h3>
+                    </div>
+                    <p className="text-base leading-relaxed whitespace-pre-wrap">{currentAnswer.aiAnswer}</p>
+                  </div>
+                </div>
+
+                {/* Suggestions */}
+                {currentAnswer.suggestions && currentAnswer.suggestions.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                      <span>Try asking:</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {currentAnswer.suggestions.map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSearch(suggestion)}
+                          className="text-left p-4 rounded-xl border-2 border-border bg-card hover-elevate active-elevate-2 transition-all"
+                        >
+                          <p className="text-sm font-medium">{suggestion}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>
