@@ -145,6 +145,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cornell Tech priority ingestion - faster, focused on Cornell Tech courses
+  app.post("/api/admin/ingest/cornell-tech", async (req, res) => {
+    try {
+      if (ingestionService.isRunning()) {
+        return res.status(409).json({
+          success: false,
+          error: "Ingestion already in progress",
+        });
+      }
+
+      // Priority subjects for Cornell Tech NYC campus
+      const cornellTechSubjects = ['NBAY', 'TECH', 'TECHIE', 'INFO', 'CS'];
+
+      // Start priority ingestion in background
+      ingestionService.ingestPriority(cornellTechSubjects).catch((error) => {
+        console.error("Priority ingestion error:", error);
+      });
+
+      res.json({
+        success: true,
+        message: "Cornell Tech priority ingestion started",
+        subjects: cornellTechSubjects,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   app.get("/api/admin/ingest/progress", async (req, res) => {
     try {
       const progress = ingestionService.getProgress();

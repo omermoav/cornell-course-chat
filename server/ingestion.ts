@@ -223,6 +223,112 @@ export class IngestionService {
     }
   }
 
+  async ingestPriority(prioritySubjects: string[]): Promise<void> {
+    if (this.isIngesting) {
+      throw new Error("Ingestion already in progress");
+    }
+
+    this.isIngesting = true;
+    this.progress = {
+      currentRoster: "",
+      currentSubject: "",
+      rostersCompleted: 0,
+      subjectsCompleted: 0,
+      coursesStored: 0,
+      totalRosters: 0,
+      totalSubjects: 0,
+      errors: [],
+    };
+
+    try {
+      console.log(`Starting PRIORITY ingestion for subjects: ${prioritySubjects.join(', ')}`);
+      
+      const rostersData = await cornellAPI.getRosters();
+      this.progress.totalRosters = rostersData.length;
+      console.log(`Found ${rostersData.length} rosters`);
+
+      // Store all rosters
+      for (const rosterData of rostersData) {
+        const parsed = this.parseRosterSlug(rosterData.slug);
+        const roster: Roster = {
+          slug: rosterData.slug,
+          descr: rosterData.descr,
+          year: parsed.year,
+          termCode: parsed.termCode,
+        };
+        await storage.storeRoster(roster);
+      }
+
+      // Process rosters in reverse order (newest first) but ONLY priority subjects
+      for (const rosterData of [...rostersData].reverse()) {
+        this.progress.currentRoster = rosterData.slug;
+        console.log(`\nProcessing roster: ${rosterData.descr} (${rosterData.slug})`);
+
+        try {
+          const subjectsData = await cornellAPI.getSubjects(rosterData.slug);
+          
+          // Filter to only priority subjects
+          const prioritySubjectsInRoster = subjectsData.filter(s => 
+            prioritySubjects.includes(s.value)
+          );
+          
+          console.log(`  Found ${prioritySubjectsInRoster.length} priority subjects (${subjectsData.length} total)`);
+          this.progress.totalSubjects += prioritySubjectsInRoster.length;
+
+          // Store priority subjects
+          for (const subjectData of prioritySubjectsInRoster) {
+            const subject: Subject = {
+              code: subjectData.value,
+              name: subjectData.descr,
+              rosterSlug: rosterData.slug,
+            };
+            await storage.storeSubject(subject);
+          }
+
+          // Ingest classes for priority subjects only
+          for (const subjectData of prioritySubjectsInRoster) {
+            this.progress.currentSubject = subjectData.value;
+            console.log(`    Fetching classes for ${subjectData.value}...`);
+
+            try {
+              const classes = await cornellAPI.getClasses(rosterData.slug, subjectData.value);
+              console.log(`      Found ${classes.length} classes`);
+
+              for (const classData of classes) {
+                const course = this.extractCourseData(classData, rosterData.slug, rosterData.descr);
+                await storage.storeCourse(course);
+                this.progress.coursesStored++;
+              }
+
+              this.progress.subjectsCompleted++;
+            } catch (error) {
+              const errorMsg = `Error fetching classes for ${subjectData.value} in ${rosterData.slug}: ${error}`;
+              console.error(`      ${errorMsg}`);
+              this.progress.errors.push(errorMsg);
+            }
+          }
+
+          this.progress.rostersCompleted++;
+        } catch (error) {
+          const errorMsg = `Error processing roster ${rosterData.slug}: ${error}`;
+          console.error(`  ${errorMsg}`);
+          this.progress.errors.push(errorMsg);
+        }
+      }
+
+      const stats = await storage.getStats();
+      console.log("\nPriority ingestion complete!");
+      console.log(`  Rosters: ${stats.rosters}`);
+      console.log(`  Subjects: ${stats.subjects}`);
+      console.log(`  Courses: ${stats.courses}`);
+      if (this.progress.errors.length > 0) {
+        console.log(`  Errors: ${this.progress.errors.length}`);
+      }
+    } finally {
+      this.isIngesting = false;
+    }
+  }
+
   getProgress() {
     return { ...this.progress, isIngesting: this.isIngesting };
   }
