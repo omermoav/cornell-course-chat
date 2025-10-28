@@ -36,7 +36,8 @@ This application indexes all available Cornell Class Rosters and provides instan
 - `GET /api/classes/latest?subject=X&catalog_nbr=Y` - Get latest course offering
 - `GET /api/classes/history?subject=X&catalog_nbr=Y` - Get course history
 - `POST /api/ask` - Comprehensive natural language question answering
-- `POST /api/admin/ingest` - Start data ingestion
+- `POST /api/admin/ingest` - Start full data ingestion (all subjects)
+- `POST /api/admin/ingest/cornell-tech` - **Start Cornell Tech priority ingestion** (NBAY, TECH, TECHIE, INFO, CS)
 - `GET /api/admin/ingest/progress` - Check ingestion progress
 
 ### Frontend (React + Tailwind + Shadcn UI)
@@ -160,7 +161,18 @@ The application supports end-to-end testing with comprehensive verification:
 
 Respects Cornell API guidance of ≤1 request/second using p-queue with exponential backoff on failures.
 
-## Recent Changes (Latest: AI Answers + Title Search)
+## Recent Changes (Latest: Cornell Tech Priority Ingestion)
+
+**October 28, 2025 - Cornell Tech Priority Ingestion:**
+- ✅ **Cornell Tech Priority Ingestion**: Created specialized fast-track ingestion for Cornell Tech courses
+  - New endpoint: `POST /api/admin/ingest/cornell-tech`
+  - Focuses on **5 priority subjects**: NBAY, TECH, TECHIE, INFO, CS
+  - **10x faster** than full ingestion (5 subjects vs 230+ per roster)
+  - Processes all 46 rosters but only Cornell Tech subjects
+  - Ideal for production deployment - gets Cornell Tech courses available in ~20 minutes
+  - Full ingestion still available via `POST /api/admin/ingest` for all courses
+- ✅ Added `ingestPriority()` method to ingestion service
+- ✅ Tested successfully with NBAY 6170 "Designing & Building AI Solutions"
 
 **October 28, 2025 - AI-Powered Answers & Title Search:**
 - ✅ **AI-Powered Answers**: Integrated OpenAI GPT-4o-mini for conversational, factual answers
