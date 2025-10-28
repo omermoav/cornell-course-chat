@@ -111,7 +111,7 @@ Supports comprehensive question types:
    - Learning Outcomes section
    - Distribution & Requirements section
    - Offering History section
-   - Single external link to official Cornell Class Roster (for verification and NetID-gated content)
+   - **Syllabus & Official Details section** - Clear link to Cornell Class Roster page where syllabuses are accessible (some public, most NetID-gated)
 
 5. **Latest Data Resolution**
    - Ranks rosters by (year, termCode)
