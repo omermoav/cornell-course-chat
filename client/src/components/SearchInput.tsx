@@ -61,7 +61,7 @@ export default function SearchInput({
               type="submit"
               size="icon"
               disabled={isLoading || !query.trim()}
-              className="h-12 w-12 rounded-full flex-shrink-0 disabled:opacity-40"
+              className="h-12 w-12 rounded-full flex-shrink-0 disabled:opacity-40 cursor-pointer transition-all hover:scale-105 active:scale-95"
             >
               {isLoading ? (
                 <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -78,6 +78,11 @@ export default function SearchInput({
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && query.trim()) {
+                  handleSubmit(e as any);
+                }
+              }}
               placeholder={placeholderText}
               className="
                 flex-1 h-12 px-4 text-lg rounded-xl
