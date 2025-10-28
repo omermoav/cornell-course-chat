@@ -1,4 +1,55 @@
 import { z } from "zod";
+import { pgTable, text, integer, json, serial } from "drizzle-orm/pg-core";
+
+// Database Tables
+export const rostersTable = pgTable("rosters", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  descr: text("descr").notNull(),
+  year: integer("year").notNull(),
+  termCode: integer("term_code").notNull(),
+});
+
+export const subjectsTable = pgTable("subjects", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull(),
+  name: text("name").notNull(),
+  rosterSlug: text("roster_slug").notNull(),
+});
+
+export const coursesTable = pgTable("courses", {
+  id: serial("id").primaryKey(),
+  subject: text("subject").notNull(),
+  catalogNbr: text("catalog_nbr").notNull(),
+  titleLong: text("title_long").notNull(),
+  rosterSlug: text("roster_slug").notNull(),
+  rosterDescr: text("roster_descr").notNull(),
+  
+  // Basic info
+  description: text("description"),
+  gradingBasis: text("grading_basis"),
+  unitsMinimum: integer("units_minimum"),
+  unitsMaximum: integer("units_maximum"),
+  
+  // Schedule and logistics (JSON arrays)
+  instructors: json("instructors").$type<string[]>(),
+  meetingPatterns: json("meeting_patterns").$type<Array<{ days: string; timeStart: string; timeEnd: string }>>(),
+  
+  // Academic requirements
+  prerequisites: text("prerequisites"),
+  outcomes: text("outcomes"),
+  satisfiesRequirements: text("satisfies_requirements"),
+  breadthRequirements: text("breadth_requirements"),
+  distributionCategories: text("distribution_categories"),
+  forbiddenOverlaps: json("forbidden_overlaps").$type<string[]>(),
+  permissionRequired: text("permission_required"),
+  
+  // History
+  lastTermsOffered: text("last_terms_offered"),
+  
+  // Raw data
+  rawData: text("raw_data").notNull(),
+});
 
 // Cornell API Response Types
 export const rosterSchema = z.object({
