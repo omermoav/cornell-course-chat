@@ -22,6 +22,7 @@ export function formatGradingBasis(basis?: string): string {
     
     // Student Option (choose between letter or S/U)
     'OPT': 'Student Option (choose Letter Grades or S/U)',
+    'OPI': 'Student Option (choose Letter Grades or S/U)',
     'STO': 'Student Option (choose Letter Grades or S/U)',
     'STUDENT OPTION': 'Student Option (choose Letter Grades or S/U)',
     
