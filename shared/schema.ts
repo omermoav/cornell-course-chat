@@ -51,7 +51,7 @@ export const classSchema = z.object({
   catalogBreadth: z.string().nullish(),
   catalogDistr: z.string().nullish(),
   catalogLang: z.string().nullish(),
-  catalogForbiddenOverlaps: z.array(z.string()).nullish(),
+  catalogForbiddenOverlaps: z.union([z.string(), z.array(z.string())]).nullish(),
   catalogPrereqCoreq: z.string().nullish(),
   catalogSatisfiesReq: z.string().nullish(),
   catalogPermission: z.string().nullish(),

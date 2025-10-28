@@ -110,8 +110,12 @@ export class IngestionService {
       satisfiesRequirements: classData.catalogSatisfiesReq || undefined,
       breadthRequirements: classData.catalogBreadth || undefined,
       distributionCategories: classData.catalogDistr || undefined,
-      forbiddenOverlaps: classData.catalogForbiddenOverlaps && classData.catalogForbiddenOverlaps.length > 0 
-        ? classData.catalogForbiddenOverlaps 
+      forbiddenOverlaps: classData.catalogForbiddenOverlaps
+        ? (typeof classData.catalogForbiddenOverlaps === 'string' 
+            ? [classData.catalogForbiddenOverlaps]
+            : classData.catalogForbiddenOverlaps.length > 0 
+              ? classData.catalogForbiddenOverlaps 
+              : undefined)
         : undefined,
       permissionRequired: classData.catalogPermission || undefined,
       
@@ -157,7 +161,8 @@ export class IngestionService {
         await storage.storeRoster(roster);
       }
 
-      for (const rosterData of rostersData) {
+      // Process rosters in reverse order (newest first) to get recent courses sooner
+      for (const rosterData of [...rostersData].reverse()) {
         this.progress.currentRoster = rosterData.slug;
         console.log(`\nProcessing roster: ${rosterData.descr} (${rosterData.slug})`);
 
