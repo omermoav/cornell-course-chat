@@ -55,17 +55,13 @@ export default function SearchInput({
             ${isFocused ? 'opacity-100' : 'opacity-0'}
           `} />
           
-          <div className="relative bg-background rounded-2xl shadow-2xl border-2 border-border">
+          <div className="flex items-center gap-3 bg-background rounded-2xl shadow-2xl border-2 border-border px-4 py-4">
             <Button
               data-testid="button-search"
               type="submit"
               size="icon"
               disabled={isLoading || !query.trim()}
-              className="
-                absolute left-3 top-1/2 -translate-y-1/2 
-                h-12 w-12 rounded-full
-                disabled:opacity-40
-              "
+              className="h-12 w-12 rounded-full flex-shrink-0 disabled:opacity-40"
             >
               {isLoading ? (
                 <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -84,8 +80,8 @@ export default function SearchInput({
               onBlur={() => setIsFocused(false)}
               placeholder={placeholderText}
               className="
-                h-20 pl-20 pr-6 text-lg rounded-2xl
-                border-0 focus-visible:ring-0
+                flex-1 h-12 px-4 text-lg rounded-xl
+                border-0 focus-visible:ring-0 bg-transparent
                 placeholder:text-muted-foreground/60
                 transition-all duration-300
               "
