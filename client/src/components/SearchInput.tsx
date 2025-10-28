@@ -88,32 +88,28 @@ export default function SearchInput({
                 variant="ghost"
                 size="icon"
                 onClick={() => setQuery("")}
-                className="absolute right-[140px] top-1/2 -translate-y-1/2 h-9 w-9 rounded-full hover-elevate"
+                className="absolute right-[72px] top-1/2 -translate-y-1/2 h-9 w-9 rounded-full hover-elevate"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </Button>
             )}
             
             <Button
               data-testid="button-search"
               type="submit"
+              variant="ghost"
+              size="icon"
               disabled={isLoading || !query.trim()}
               className="
                 absolute right-3 top-1/2 -translate-y-1/2 
-                h-14 px-8 rounded-xl font-semibold text-base
-                shadow-lg
+                h-12 w-12 rounded-full
+                disabled:opacity-40
               "
             >
               {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  <span>Searching</span>
-                </div>
+                <div className="h-5 w-5 border-2 border-foreground/30 border-t-foreground rounded-full animate-spin" />
               ) : (
-                <div className="flex items-center gap-2">
-                  <Search className="h-5 w-5" />
-                  <span>Search</span>
-                </div>
+                <Search className="h-5 w-5" />
               )}
             </Button>
           </div>
