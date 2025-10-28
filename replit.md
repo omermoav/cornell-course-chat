@@ -32,7 +32,16 @@ The application is built with a backend using Express and TypeScript, and a fron
 
 ## Key Features
 
-### 1. True MECE Chatbot - Handles ANY Question Type ✨ LATEST
+### 1. Conversational Chat Interface ✨ NEW
+- **Full conversation support**: Ask follow-up questions that maintain context from previous exchanges
+- **Chat-style UI**: Messages displayed in scrollable conversation view with user/assistant distinction
+- **Context awareness**: AI remembers previous questions and answers in the conversation
+- **Persistent input**: Search field always visible for immediate follow-ups
+- **Auto-scroll**: Automatically scrolls to newest message for seamless conversation flow
+- **Clear conversation**: Option to start fresh conversation when needed
+- **Example flow**: "What is NBAY 6170?" → "Who teaches it?" → "What are the prerequisites?"
+
+### 2. True MECE Chatbot - Handles ANY Question Type
 - **Specific course queries**: "What is NBAY 6170?" → Full course details with comprehensive AI summary
 - **Broad subject queries**: "What CS courses are offered?" → AI suggestions for specific courses to explore
 - **Thematic questions**: "Tell me about machine learning courses" → AI answer with helpful suggestions
@@ -42,7 +51,7 @@ The application is built with a backend using Express and TypeScript, and a fron
 - **Smart suggestions**: When direct answers aren't available, AI generates clickable follow-up questions
 - **Suggestion cards**: Click any suggestion to instantly trigger a new search
 
-### 2. AI-Powered Conversational Answers
+### 3. AI-Powered Conversational Answers
 - OpenAI GPT-4o-mini generates contextual, conversational responses
 - AI answers appear prominently at top of answer card
 - **Factual and specific**: Uses ONLY actual course data without generic interpretations
@@ -51,14 +60,14 @@ The application is built with a backend using Express and TypeScript, and a fron
 - Gradient background with sparkles icon for visual distinction
 - **Broad question handling**: New `handleBroadQuestion()` method provides MECE-focused guidance
 
-### 3. Search by Course Code OR Course Title
+### 4. Search by Course Code OR Course Title
 - Search by course code: "NBAY 6170", "CS 4780"
 - **Search by course name**: "Designing & Building AI Solutions", "Introduction to Machine Learning"
 - **Search by partial title**: "Building AI Solutions" finds full course
 - Smart matching: exact matches prioritized, then starts-with, then contains
 - Single match: instant answer; multiple matches: shows options
 
-### 4. User-Friendly Grading Display
+### 5. User-Friendly Grading Display
 - Technical codes replaced with plain language:
   - "GRI" → "Letter Grades (A+, A, A-, B+, B, B-, C+, C, etc.)"
   - "SUI" → "Satisfactory/Unsatisfactory (S/U)"
@@ -66,13 +75,13 @@ The application is built with a backend using Express and TypeScript, and a fron
 - Shared utility: `formatGradingBasis()` in `shared/grading-utils.ts`
 - Automatically detects section variations within same term
 
-### 5. Comprehensive Information Display
+### 6. Comprehensive Information Display
 - ALL available data shown automatically in answer card
 - No need to click external links for basic information
 - Beautiful sectioned layout with icons and clear hierarchy
 - Information only shown if available (no empty sections)
 
-### 6. Enhanced Search UX
+### 7. Enhanced Search UX
 - Minimal red circular search button on left side
 - Animated focus effects and gradient border
 - Categorized example questions showcasing full capabilities
@@ -80,6 +89,16 @@ The application is built with a backend using Express and TypeScript, and a fron
 - Clickable input field with perfect vertical centering
 
 ## Recent Changes
+
+**October 28, 2025 - Conversational Chat Interface:**
+- Implemented full conversational chat interface replacing single Q&A pattern
+- Added `ChatMessage` and `ConversationRequest` types to schema for conversation history tracking
+- Updated backend AI service to accept and utilize conversation history in responses
+- Transformed frontend into scrollable chat interface with message display and auto-scroll
+- Modified API endpoints to accept conversation history array with each request
+- User messages displayed in right-aligned red boxes, assistant messages show full course cards
+- Added "Clear Conversation" button to start fresh conversations
+- Verified conversational flow with end-to-end testing: multi-turn conversations maintain context
 
 **October 28, 2025 - MECE Enhancement & AI Suggestions:**
 - Added `handleBroadQuestion()` method to AI service for handling any question type with MECE-focused guidance
