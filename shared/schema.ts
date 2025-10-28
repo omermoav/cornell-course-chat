@@ -28,8 +28,8 @@ export const coursesTable = pgTable("courses", {
   // Basic info
   description: text("description"),
   gradingBasis: text("grading_basis"),
-  unitsMinimum: integer("units_minimum"),
-  unitsMaximum: integer("units_maximum"),
+  unitsMinimum: text("units_minimum"), // Store as text to handle decimals like 1.5
+  unitsMaximum: text("units_maximum"), // Store as text to handle decimals like 1.5
   
   // Schedule and logistics (JSON arrays)
   instructors: json("instructors").$type<string[]>(),
