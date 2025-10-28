@@ -35,10 +35,11 @@ The application is built with a backend using Express and TypeScript, and a fron
 ### 1. Conversational Chat Interface ✨ NEW
 - **Full conversation support**: Ask follow-up questions that maintain context from previous exchanges
 - **Chat-style UI**: Messages displayed in scrollable conversation view with user/assistant distinction
+- **Sticky input at bottom**: Search field fixed at bottom of screen, always visible regardless of scroll position
 - **Context awareness**: AI remembers previous questions and answers in the conversation
-- **Persistent input**: Search field always visible for immediate follow-ups
 - **Auto-scroll**: Automatically scrolls to newest message for seamless conversation flow
 - **Clear conversation**: Option to start fresh conversation when needed
+- **Standard chat UX**: Follows modern chat interface patterns (like ChatGPT, Slack) for intuitive interaction
 - **Example flow**: "What is NBAY 6170?" → "Who teaches it?" → "What are the prerequisites?"
 
 ### 2. True MECE Chatbot - Handles ANY Question Type
@@ -95,10 +96,12 @@ The application is built with a backend using Express and TypeScript, and a fron
 - Added `ChatMessage` and `ConversationRequest` types to schema for conversation history tracking
 - Updated backend AI service to accept and utilize conversation history in responses
 - Transformed frontend into scrollable chat interface with message display and auto-scroll
+- **Fixed sticky input**: Restructured layout with flexbox - search input now fixed at bottom, always visible
 - Modified API endpoints to accept conversation history array with each request
 - User messages displayed in right-aligned red boxes, assistant messages show full course cards
 - Added "Clear Conversation" button to start fresh conversations
 - Verified conversational flow with end-to-end testing: multi-turn conversations maintain context
+- Tested sticky input: verified search field remains accessible regardless of scroll position
 
 **October 28, 2025 - MECE Enhancement & AI Suggestions:**
 - Added `handleBroadQuestion()` method to AI service for handling any question type with MECE-focused guidance

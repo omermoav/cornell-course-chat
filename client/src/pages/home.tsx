@@ -96,47 +96,39 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background">
       {/* Hero Header with Gradient */}
-      <header className="relative border-b overflow-hidden">
+      <header className="relative border-b overflow-hidden flex-shrink-0">
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
         
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-          <div className="flex items-start justify-between mb-6">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+          <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
-                <GraduationCap className="h-7 w-7 text-primary" />
+                <GraduationCap className="h-6 w-6 md:h-7 md:w-7 text-primary" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-primary uppercase tracking-wider">Cornell University</div>
-                <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                <div className="text-xs md:text-sm font-semibold text-primary uppercase tracking-wider">Cornell University</div>
+                <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                   Classes Q&A
                 </h1>
               </div>
             </div>
             <ThemeToggle />
           </div>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-            Ask natural-language questions about Cornell courses and get instant answers from the official Class Roster API
+          <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
+            Ask natural-language questions about Cornell courses
           </p>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        <div className="space-y-10">
-          {/* Search Section */}
-          <SearchInput 
-            onSearch={handleSearch}
-            isLoading={searchMutation.isPending}
-            recentQueries={recentQueries}
-            onClearRecent={handleClearRecent}
-          />
-
+      {/* Main Content - Scrollable Messages Area */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Conversation Display */}
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6 pb-6">
             {/* Show empty state if no messages */}
             {messages.length === 0 && !searchMutation.isPending && (
               <StatusMessage type="empty" />
@@ -224,25 +216,35 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t mt-20 bg-card/30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-center md:text-left space-y-1">
-              <p className="text-sm font-medium text-foreground">
-                Data from Cornell Class Roster API
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Rate limit: ≤1 request/second • All course data is official and up-to-date
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              {messages.length > 0 && messages[messages.length - 1]?.answer?.rosterDescr && (
-                <div className="px-3 py-1.5 rounded-full bg-muted/50">
-                  {messages[messages.length - 1]?.answer?.rosterDescr}
+      {/* Sticky Search Input at Bottom */}
+      <div className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 flex-shrink-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-4xl mx-auto">
+            <SearchInput 
+              onSearch={handleSearch}
+              isLoading={searchMutation.isPending}
+              recentQueries={recentQueries}
+              onClearRecent={handleClearRecent}
+            />
+            
+            {/* Footer Info */}
+            {messages.length === 0 && (
+              <div className="mt-4 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Data from Cornell Class Roster API • Rate limit: ≤1 request/second
+                </p>
+              </div>
+            )}
+            
+            {messages.length > 0 && (
+              <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <div>
+                  {messages[messages.length - 1]?.answer?.rosterDescr && (
+                    <span className="px-3 py-1.5 rounded-full bg-muted/50">
+                      {messages[messages.length - 1]?.answer?.rosterDescr}
+                    </span>
+                  )}
                 </div>
-              )}
-              {messages.length > 1 && (
                 <button
                   onClick={handleClearConversation}
                   data-testid="button-clear-conversation"
@@ -250,11 +252,11 @@ export default function Home() {
                 >
                   Clear Conversation
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
