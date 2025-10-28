@@ -132,6 +132,7 @@ export interface ParsedQuestion {
   catalogNbr?: string;
   intent: QuestionIntent;
   rawQuery: string;
+  titleQuery?: string;
 }
 
 export interface AnswerResponse {

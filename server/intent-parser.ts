@@ -85,11 +85,32 @@ export class IntentParser {
     const { subject, catalogNbr } = this.extractCourseCode(query);
     const intent = this.detectIntent(query);
     
+    // If no course code found, extract potential course title
+    let titleQuery: string | undefined;
+    if (!subject && !catalogNbr) {
+      // Extract course title from questions like:
+      // "What is Designing & Building AI Solutions about?"
+      // "Tell me about Introduction to Machine Learning"
+      // "Is Database Systems pass/fail?"
+      
+      // Remove common question words/phrases
+      const cleaned = query
+        .replace(/\b(what|is|are|about|tell me about|describe|who teaches|how many credits|when does|credits for|syllabus for|does|meet|grading for|prerequisites for|pass\/?fail)\b/gi, '')
+        .replace(/\?/g, '')
+        .trim();
+      
+      // If we have substantial text left (likely a course title), use it
+      if (cleaned.length > 3) {
+        titleQuery = cleaned;
+      }
+    }
+    
     return {
       subject,
       catalogNbr,
       intent,
       rawQuery: query,
+      titleQuery,
     };
   }
 

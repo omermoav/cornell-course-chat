@@ -90,11 +90,37 @@ export class AnswerService {
   async answer(query: string): Promise<AnswerResponse> {
     const parsed = intentParser.parse(query);
 
+    // Try title search if no course code found
+    if (!parsed.subject && !parsed.catalogNbr && parsed.titleQuery) {
+      const matches = await storage.searchByTitle(parsed.titleQuery);
+      
+      if (matches.length === 0) {
+        return {
+          success: false,
+          error: `Could not find any courses matching "${parsed.titleQuery}". Try using a course code like 'NBAY 5500' or 'CS 4780'.`,
+        };
+      }
+
+      if (matches.length === 1) {
+        // Single match - answer about that course
+        const latestRoster = await storage.getLatestRoster();
+        const isOldData = latestRoster ? matches[0].rosterSlug !== latestRoster.slug : false;
+        return this.buildAnswerFromCourse(matches[0], parsed.intent, isOldData, parsed.rawQuery);
+      }
+
+      // Multiple matches - show options
+      const courseList = matches.slice(0, 5).map(c => `${c.subject} ${c.catalogNbr} - ${c.titleLong}`).join('\n');
+      return {
+        success: false,
+        error: `Found ${matches.length} courses matching "${parsed.titleQuery}". Please be more specific or use a course code:\n\n${courseList}`,
+      };
+    }
+
     // Validate we have enough information
     if (!intentParser.isValid(parsed)) {
       return {
         success: false,
-        error: "Could not identify a course code in your question. Please include a course code like 'NBAY 5500' or 'CS 4780'.",
+        error: "Could not identify a course code or course name in your question. Try using a course code like 'NBAY 5500' or a course name like 'Designing & Building AI Solutions'.",
       };
     }
 

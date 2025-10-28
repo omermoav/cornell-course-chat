@@ -18,6 +18,7 @@ export interface IStorage {
   getLatestCourse(subject: string, catalogNbr: string): Promise<StoredCourse | undefined>;
   getCoursesBySubject(subject: string, limit?: number): Promise<StoredCourse[]>;
   getAllCourses(): Promise<StoredCourse[]>;
+  searchByTitle(titleQuery: string): Promise<StoredCourse[]>;
   
   // Utility
   clear(): Promise<void>;
@@ -131,6 +132,54 @@ export class MemStorage implements IStorage {
 
   async getAllCourses(): Promise<StoredCourse[]> {
     return Array.from(this.courses.values());
+  }
+
+  async searchByTitle(titleQuery: string): Promise<StoredCourse[]> {
+    const query = titleQuery.toLowerCase();
+    const allCourses = Array.from(this.courses.values());
+    
+    // Find matching courses
+    const matches = allCourses.filter(course => 
+      course.titleLong?.toLowerCase().includes(query)
+    );
+    
+    // Get unique courses (latest version of each)
+    const uniqueCourses = new Map<string, StoredCourse>();
+    for (const course of matches) {
+      const key = `${course.subject}-${course.catalogNbr}`;
+      const existing = uniqueCourses.get(key);
+      if (!existing) {
+        uniqueCourses.set(key, course);
+      } else {
+        const existingRoster = this.rosters.get(existing.rosterSlug);
+        const courseRoster = this.rosters.get(course.rosterSlug);
+        if (existingRoster && courseRoster) {
+          if (courseRoster.year > existingRoster.year || 
+              (courseRoster.year === existingRoster.year && courseRoster.termCode > existingRoster.termCode)) {
+            uniqueCourses.set(key, course);
+          }
+        }
+      }
+    }
+    
+    // Sort by relevance (exact match first, then alphabetical)
+    return Array.from(uniqueCourses.values()).sort((a, b) => {
+      const aTitle = a.titleLong?.toLowerCase() || '';
+      const bTitle = b.titleLong?.toLowerCase() || '';
+      
+      // Exact match first
+      if (aTitle === query && bTitle !== query) return -1;
+      if (bTitle === query && aTitle !== query) return 1;
+      
+      // Then starts with
+      const aStarts = aTitle.startsWith(query);
+      const bStarts = bTitle.startsWith(query);
+      if (aStarts && !bStarts) return -1;
+      if (bStarts && !aStarts) return 1;
+      
+      // Finally alphabetical
+      return aTitle.localeCompare(bTitle);
+    });
   }
 
   async clear(): Promise<void> {

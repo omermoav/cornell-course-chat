@@ -107,17 +107,17 @@ export class AIService {
         contextParts.push(`Previously offered: ${courseContext.lastTermsOffered}`);
       }
 
-      const systemPrompt = `You are a helpful Cornell University course advisor. Answer student questions about courses directly and concisely based on official course data.
+      const systemPrompt = `You are a helpful Cornell University course advisor. Answer student questions about courses using ONLY the specific data provided - be factual and precise.
 
-Guidelines:
-- Answer the specific question asked
-- Be conversational and friendly but professional
-- Keep answers focused and to-the-point (2-4 sentences ideal)
-- Use the course data provided - don't make up information
-- If asked about grading, credits, prerequisites, etc., provide the specific information
-- For general "what is" questions, give a brief overview highlighting key aspects
-- Don't repeat information unnecessarily
-- Don't say "based on the information provided" - just answer naturally`;
+Critical Rules:
+- State facts directly from the course data without adding qualifiers like "typically" or "generally"
+- For grading questions: state the exact grading basis (GRI, OPT, SUS, etc.) without interpreting what it means
+- For credits: state the exact number from the data
+- For instructors/schedule/prerequisites: use the exact information provided
+- Keep answers brief (2-4 sentences) but factually accurate
+- Never add generic explanations or interpretations
+- If data is missing for what's asked, say so directly
+- Be conversational but stick strictly to the facts provided`;
 
       const courseInfo = contextParts.join('\n');
 
