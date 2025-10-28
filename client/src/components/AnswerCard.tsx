@@ -1,5 +1,5 @@
-import { ExternalLink, BookOpen, Award, Users, Clock, Calendar, FileText } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ExternalLink, BookOpen, Award, Users, Clock, Calendar, FileText, AlertCircle, CheckCircle, BookmarkCheck, Lightbulb } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ProvenanceBadge from "./ProvenanceBadge";
@@ -10,12 +10,20 @@ interface CourseInfo {
   subject: string;
   catalogNbr: string;
   titleLong: string;
+  description?: string;
   gradingBasis?: string;
   gradingBasisVariations?: string[];
   unitsMinimum?: number;
   unitsMaximum?: number;
   instructors?: string[];
   meetingPatterns?: Array<{ days: string; timeStart: string; timeEnd: string }>;
+  prerequisites?: string;
+  outcomes?: string;
+  satisfiesRequirements?: string;
+  breadthRequirements?: string;
+  distributionCategories?: string;
+  forbiddenOverlaps?: string[];
+  permissionRequired?: string;
   lastTermsOffered?: string;
 }
 
@@ -78,12 +86,40 @@ export default function AnswerCard({
       </div>
 
       <CardContent className="px-6 md:px-8 py-6 space-y-6">
-        {/* Summary Section */}
-        <div className="grid sm:grid-cols-2 gap-6">
-          {(answerType === "grading" || answerType === "general") && (
+        {/* Course Description */}
+        {courseInfo.description && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 font-semibold text-foreground">
+              <FileText className="h-5 w-5 text-primary" />
+              <span>Course Description</span>
+            </div>
+            <p className="text-base leading-relaxed text-foreground/90" data-testid="text-description">
+              {courseInfo.description}
+            </p>
+          </div>
+        )}
+
+        {/* Quick Facts Grid */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          {courseInfo.unitsMinimum !== undefined && (
             <div className="space-y-2 p-4 rounded-lg bg-card border">
               <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 <Award className="h-4 w-4" />
+                <span>Credits</span>
+              </div>
+              <div className="text-lg md:text-xl font-bold" data-testid="text-credits">
+                {courseInfo.unitsMinimum === courseInfo.unitsMaximum 
+                  ? `${courseInfo.unitsMinimum} credit${courseInfo.unitsMinimum !== 1 ? 's' : ''}`
+                  : `${courseInfo.unitsMinimum}–${courseInfo.unitsMaximum} credits`
+                }
+              </div>
+            </div>
+          )}
+
+          {(courseInfo.gradingBasis || courseInfo.gradingBasisVariations) && (
+            <div className="space-y-2 p-4 rounded-lg bg-card border">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                <CheckCircle className="h-4 w-4" />
                 <span>Grading Basis</span>
               </div>
               {courseInfo.gradingBasisVariations && courseInfo.gradingBasisVariations.length > 1 ? (
@@ -107,36 +143,19 @@ export default function AnswerCard({
               )}
             </div>
           )}
-
-          {(answerType === "credits" || answerType === "general") && courseInfo.unitsMinimum !== undefined && (
-            <div className="space-y-2 p-4 rounded-lg bg-card border">
-              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                <Award className="h-4 w-4" />
-                <span>Credits</span>
-              </div>
-              <div className="text-lg md:text-xl font-bold" data-testid="text-credits">
-                {courseInfo.unitsMinimum === courseInfo.unitsMaximum 
-                  ? `${courseInfo.unitsMinimum} credit${courseInfo.unitsMinimum !== 1 ? 's' : ''}`
-                  : `${courseInfo.unitsMinimum}–${courseInfo.unitsMaximum} credits`
-                }
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Logistics Section */}
-        {((answerType === "instructor" || answerType === "schedule" || answerType === "general") && 
-          ((courseInfo.instructors && courseInfo.instructors.length > 0) || 
-           (courseInfo.meetingPatterns && courseInfo.meetingPatterns.length > 0))) && (
+        {/* Schedule & Instructors */}
+        {(courseInfo.instructors || courseInfo.meetingPatterns) && (
           <>
             <Separator />
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                <span>Course Details</span>
+                <span>Schedule & Instructors</span>
               </h3>
               <div className="grid sm:grid-cols-2 gap-4">
-                {(answerType === "instructor" || answerType === "general") && courseInfo.instructors && courseInfo.instructors.length > 0 && (
+                {courseInfo.instructors && courseInfo.instructors.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                       <Users className="h-4 w-4" />
@@ -148,7 +167,7 @@ export default function AnswerCard({
                   </div>
                 )}
 
-                {(answerType === "schedule" || answerType === "general") && courseInfo.meetingPatterns && courseInfo.meetingPatterns.length > 0 && (
+                {courseInfo.meetingPatterns && courseInfo.meetingPatterns.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                       <Clock className="h-4 w-4" />
@@ -169,14 +188,114 @@ export default function AnswerCard({
           </>
         )}
 
-        {/* History Section */}
-        {(answerType === "history" || answerType === "general") && courseInfo.lastTermsOffered && (
+        {/* Requirements Section */}
+        {(courseInfo.prerequisites || courseInfo.permissionRequired || courseInfo.forbiddenOverlaps) && (
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-primary" />
+                <span>Requirements & Restrictions</span>
+              </h3>
+              
+              {courseInfo.prerequisites && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Prerequisites & Corequisites</div>
+                  <p className="text-base leading-relaxed" data-testid="text-prerequisites">
+                    {courseInfo.prerequisites}
+                  </p>
+                </div>
+              )}
+
+              {courseInfo.permissionRequired && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Permission Required</div>
+                  <p className="text-base leading-relaxed" data-testid="text-permission">
+                    {courseInfo.permissionRequired}
+                  </p>
+                </div>
+              )}
+
+              {courseInfo.forbiddenOverlaps && courseInfo.forbiddenOverlaps.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Cannot Be Taken With</div>
+                  <div className="flex flex-wrap gap-2" data-testid="text-forbidden-overlaps">
+                    {courseInfo.forbiddenOverlaps.map((overlap, idx) => (
+                      <Badge key={idx} variant="secondary" className="font-mono">
+                        {overlap}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Learning Outcomes */}
+        {courseInfo.outcomes && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-primary" />
+                <span>Learning Outcomes</span>
+              </h3>
+              <p className="text-base leading-relaxed" data-testid="text-outcomes">
+                {courseInfo.outcomes}
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Distribution & Breadth Requirements */}
+        {(courseInfo.satisfiesRequirements || courseInfo.breadthRequirements || courseInfo.distributionCategories) && (
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <BookmarkCheck className="h-5 w-5 text-primary" />
+                <span>Distribution & Requirements</span>
+              </h3>
+
+              {courseInfo.satisfiesRequirements && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Satisfies</div>
+                  <p className="text-base" data-testid="text-satisfies">
+                    {courseInfo.satisfiesRequirements}
+                  </p>
+                </div>
+              )}
+
+              {courseInfo.breadthRequirements && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Breadth</div>
+                  <p className="text-base" data-testid="text-breadth">
+                    {courseInfo.breadthRequirements}
+                  </p>
+                </div>
+              )}
+
+              {courseInfo.distributionCategories && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Distribution Categories</div>
+                  <p className="text-base" data-testid="text-distribution">
+                    {courseInfo.distributionCategories}
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* History */}
+        {courseInfo.lastTermsOffered && (
           <>
             <Separator />
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span>Last Terms Offered</span>
+                <span>Offering History</span>
               </div>
               <div className="flex flex-wrap gap-2" data-testid="text-last-terms">
                 {courseInfo.lastTermsOffered.split(',').map((term, idx) => (
@@ -189,7 +308,7 @@ export default function AnswerCard({
           </>
         )}
 
-        {/* Action Buttons */}
+        {/* Official Link */}
         <Separator />
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
@@ -199,19 +318,7 @@ export default function AnswerCard({
           >
             <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4 mr-2" />
-              Open Class Page
-            </a>
-          </Button>
-          <Button
-            data-testid="button-view-syllabus"
-            variant="outline"
-            asChild
-            className="flex-1 h-12"
-          >
-            <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
-              <FileText className="h-4 w-4 mr-2" />
-              View Syllabus
-              <Badge variant="secondary" className="ml-2 text-xs">NetID Required</Badge>
+              View on Official Cornell Class Roster
             </a>
           </Button>
         </div>

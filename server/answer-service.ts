@@ -19,11 +19,9 @@ export class AnswerService {
     intent: QuestionIntent,
     isOldData: boolean = false
   ): Promise<AnswerResponse> {
-    // Check for grading basis variations
     const history = await storage.getCourseHistory(course.subject, course.catalogNbr);
     const gradingBases = new Set<string>();
     
-    // Get all grading bases from the same roster
     const sameRosterCourses = history.filter(c => c.rosterSlug === course.rosterSlug);
     for (const c of sameRosterCourses) {
       if (c.gradingBasis) {
@@ -39,12 +37,28 @@ export class AnswerService {
         subject: course.subject,
         catalogNbr: course.catalogNbr,
         titleLong: course.titleLong,
+        
+        // Basic info
+        description: course.description,
         gradingBasis: course.gradingBasis ? this.formatGradingBasis(course.gradingBasis) : undefined,
         gradingBasisVariations: gradingBases.size > 1 ? Array.from(gradingBases) : undefined,
         unitsMinimum: course.unitsMinimum,
         unitsMaximum: course.unitsMaximum,
+        
+        // Schedule
         instructors: course.instructors,
         meetingPatterns: course.meetingPatterns,
+        
+        // Requirements
+        prerequisites: course.prerequisites,
+        outcomes: course.outcomes,
+        satisfiesRequirements: course.satisfiesRequirements,
+        breadthRequirements: course.breadthRequirements,
+        distributionCategories: course.distributionCategories,
+        forbiddenOverlaps: course.forbiddenOverlaps,
+        permissionRequired: course.permissionRequired,
+        
+        // History
         lastTermsOffered: course.lastTermsOffered,
       },
       rosterSlug: course.rosterSlug,
@@ -56,26 +70,7 @@ export class AnswerService {
   }
 
   async answer(query: string): Promise<AnswerResponse> {
-    // Parse the question
     const parsed = intentParser.parse(query);
-
-    // Check for pass rate questions first
-    if (parsed.intent === "passRate") {
-      let classPageUrl: string | undefined;
-      
-      if (parsed.subject && parsed.catalogNbr) {
-        const course = await storage.getLatestCourse(parsed.subject, parsed.catalogNbr);
-        if (course) {
-          classPageUrl = this.getClassPageUrl(course.rosterSlug, course.subject, course.catalogNbr);
-        }
-      }
-
-      return {
-        success: false,
-        message: "Cornell does not publish current pass rates/median grades via the Class Roster; I can share grading basis and link the official class page.",
-        classPageUrl,
-      };
-    }
 
     // Validate we have enough information
     if (!intentParser.isValid(parsed)) {
@@ -96,11 +91,9 @@ export class AnswerService {
         };
       }
 
-      // Return info about the subject with top courses
       return {
         success: true,
         message: `Found ${courses.length} courses in ${parsed.subject}. Here are the most recent offerings:`,
-        // TODO: Format this better for subject queries
       };
     }
 

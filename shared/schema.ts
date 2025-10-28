@@ -68,12 +68,29 @@ export interface StoredCourse {
   titleLong: string;
   rosterSlug: string;
   rosterDescr: string;
+  
+  // Basic info
+  description?: string;
   gradingBasis?: string;
   unitsMinimum?: number;
   unitsMaximum?: number;
+  
+  // Schedule and logistics
   instructors?: string[];
   meetingPatterns?: Array<{ days: string; timeStart: string; timeEnd: string }>;
+  
+  // Academic requirements
+  prerequisites?: string;
+  outcomes?: string;
+  satisfiesRequirements?: string;
+  breadthRequirements?: string;
+  distributionCategories?: string;
+  forbiddenOverlaps?: string[];
+  permissionRequired?: string;
+  
+  // History
   lastTermsOffered?: string;
+  
   rawData: string; // JSON string of full class data
 }
 
@@ -104,8 +121,10 @@ export type QuestionIntent =
   | "instructor" 
   | "schedule" 
   | "history" 
-  | "syllabus"
-  | "passRate"
+  | "prerequisites"
+  | "outcomes"
+  | "requirements"
+  | "description"
   | "general";
 
 export interface ParsedQuestion {
@@ -121,12 +140,28 @@ export interface AnswerResponse {
     subject: string;
     catalogNbr: string;
     titleLong: string;
+    
+    // Basic info
+    description?: string;
     gradingBasis?: string;
     gradingBasisVariations?: string[];
     unitsMinimum?: number;
     unitsMaximum?: number;
+    
+    // Schedule
     instructors?: string[];
     meetingPatterns?: Array<{ days: string; timeStart: string; timeEnd: string }>;
+    
+    // Requirements
+    prerequisites?: string;
+    outcomes?: string;
+    satisfiesRequirements?: string;
+    breadthRequirements?: string;
+    distributionCategories?: string;
+    forbiddenOverlaps?: string[];
+    permissionRequired?: string;
+    
+    // History
     lastTermsOffered?: string;
   };
   rosterSlug?: string;

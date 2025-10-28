@@ -28,9 +28,14 @@ export class IntentParser {
   private detectIntent(query: string): QuestionIntent {
     const lowerQuery = query.toLowerCase();
     
-    // Pass rate / grade distribution (special policy case)
-    if (lowerQuery.match(/\b(pass\s*rate|grade\s*distrib|median\s*grade|average\s*grade)\b/)) {
-      return "passRate";
+    // Prerequisites / requirements
+    if (lowerQuery.match(/\b(prereq|pre-req|prerequisite|coreq|co-req|corequisite|requirement)\b/)) {
+      return "prerequisites";
+    }
+    
+    // Learning outcomes
+    if (lowerQuery.match(/\b(outcome|learning\s*outcome|objective|learn|cover|topic)\b/)) {
+      return "outcomes";
     }
     
     // Grading basis
@@ -59,9 +64,14 @@ export class IntentParser {
       return "history";
     }
     
-    // Syllabus
-    if (lowerQuery.match(/\b(syllabus|syllabi|course\s*outline)\b/)) {
-      return "syllabus";
+    // Description
+    if (lowerQuery.match(/\b(about|describe|description|what\s*is|tell\s*me)\b/)) {
+      return "description";
+    }
+    
+    // Requirements (breadth, distribution)
+    if (lowerQuery.match(/\b(breadth|distribution|satisfy|satisfies|requirement)\b/)) {
+      return "requirements";
     }
     
     // Default to general
