@@ -214,6 +214,47 @@ ${understanding.suggestedQuery ? `Perhaps you meant to ask: "${understanding.sug
 
     // Handle broad questions without specific course info
     if (!intentParser.isValid(parsed)) {
+      console.log('[AnswerService] Invalid parse, checking for broad temporal query');
+      
+      // Check if this is a vague temporal query (e.g., "What classes are offered in 2025?")
+      const lowerQuery = query.toLowerCase();
+      const isTemporalQuery = lowerQuery.match(/\b(fall|spring|summer|winter|semester|term|20\d{2})\b/) !== null;
+      const isVagueQuery = lowerQuery.match(/^what\s+(are\s+)?the\s+classes/i) || 
+                          lowerQuery.match(/^what\s+classes\s+(are|in|for)/i);
+      
+      if (isTemporalQuery && isVagueQuery) {
+        const stats = await storage.getStats();
+        const latestRoster = await storage.getLatestRoster();
+        const termInfo = latestRoster ? latestRoster.descr : "the latest available term";
+        
+        return {
+          success: true,
+          aiAnswer: `I'd be happy to help you explore Cornell courses! However, I need to know which subject you're interested in.
+
+I have data for ${stats.courses} courses across ${stats.rosters} semesters (data from ${termInfo}). Course offerings vary by semester.
+
+**Please specify a subject**, such as:
+• CS (Computer Science)
+• INFO (Information Science)  
+• NBAY (Cornell Tech Business Analytics)
+• TECH (Cornell Tech)
+• ORIE (Operations Research)
+• MATH, PHYS, CHEM, BIO, etc.
+
+For example, try asking:
+• "What CS courses are offered?"
+• "Tell me about Cornell Tech courses"
+• "Show me INFO classes"`,
+          answerType: 'general',
+          suggestions: [
+            "What CS courses are offered?",
+            "Tell me about Cornell Tech courses",
+            "What INFO classes are available?",
+            "Show me NBAY courses"
+          ]
+        };
+      }
+      
       // Check if AI understanding extracted subjects
       if (understanding.extractedInfo.subjects && understanding.extractedInfo.subjects.length > 0) {
         // Use AI-extracted subject(s) to search

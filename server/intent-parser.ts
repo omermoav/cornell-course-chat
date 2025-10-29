@@ -11,10 +11,31 @@ export class IntentParser {
   }
 
   /**
+   * Check if query is too vague (no specific subject or course)
+   */
+  private isVagueQuery(query: string): boolean {
+    const lowerQuery = query.toLowerCase();
+    // Questions like "What are the classes..." or "What classes are..." without specific subject
+    const vaguePatterns = [
+      /^what\s+(are\s+)?the\s+classes/i,
+      /^what\s+classes\s+(are|in|for)/i,
+      /^show\s+me\s+(the\s+)?classes/i,
+      /^tell\s+me\s+about\s+classes/i,
+    ];
+    return vaguePatterns.some(pattern => pattern.test(query));
+  }
+
+  /**
    * Extract course code from natural language query
    * Supports formats like: "NBAY 5500", "CS4780", "INFO 2950", "ANTHR 1101"
    */
   private extractCourseCode(query: string): { subject?: string; catalogNbr?: string } {
+    // Check if query is too vague (no subject specified)
+    if (this.isVagueQuery(query)) {
+      console.log('[IntentParser] Vague query detected, not extracting subject');
+      return {};
+    }
+    
     // First check if this is a temporal query (e.g., "What are the CS classes for fall 2025?")
     // We want to avoid matching years as course numbers
     if (this.isTemporalQuery(query)) {
