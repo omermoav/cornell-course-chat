@@ -160,32 +160,74 @@ export default function Home() {
 
                     {/* General Answer (no specific course) */}
                     {msg.answer?.success && msg.content && !msg.answer?.courseInfo && (
-                      <div className="rounded-2xl border-2 border-border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl p-8">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <GraduationCap className="h-5 w-5 text-primary" />
+                      <div className="space-y-4">
+                        <div className="rounded-2xl border-2 border-border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl p-8">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 rounded-lg bg-primary/10">
+                                <GraduationCap className="h-5 w-5 text-primary" />
+                              </div>
+                              <h3 className="text-lg font-semibold">Answer</h3>
                             </div>
-                            <h3 className="text-lg font-semibold">Answer</h3>
+                            <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                           </div>
-                          <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+
+                          {/* Suggestions */}
+                          {msg.answer.suggestions && msg.answer.suggestions.length > 0 && (
+                            <div className="mt-6 space-y-4">
+                              <h4 className="text-sm font-semibold text-muted-foreground">
+                                Try asking:
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {msg.answer.suggestions.map((suggestion, sidx) => (
+                                  <button
+                                    key={sidx}
+                                    data-testid={`suggestion-${idx}-${sidx}`}
+                                    onClick={() => handleSearch(suggestion)}
+                                    className="text-left p-4 rounded-xl border-2 border-border bg-card hover-elevate active-elevate-2 transition-all"
+                                  >
+                                    <p className="text-sm font-medium">{suggestion}</p>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Suggestions */}
-                        {msg.answer.suggestions && msg.answer.suggestions.length > 0 && (
-                          <div className="mt-6 space-y-4">
-                            <h4 className="text-sm font-semibold text-muted-foreground">
-                              Try asking:
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {msg.answer.suggestions.map((suggestion, sidx) => (
+                        {/* Course List (if present) */}
+                        {msg.answer.courseList && msg.answer.courseList.length > 0 && (
+                          <div className="rounded-2xl border-2 border-border bg-card p-6">
+                            <h4 className="text-lg font-semibold mb-4">Available Courses ({msg.answer.courseList.length})</h4>
+                            <div className="grid gap-3">
+                              {msg.answer.courseList.map((course, cidx) => (
                                 <button
-                                  key={sidx}
-                                  data-testid={`suggestion-${idx}-${sidx}`}
-                                  onClick={() => handleSearch(suggestion)}
-                                  className="text-left p-4 rounded-xl border-2 border-border bg-card hover-elevate active-elevate-2 transition-all"
+                                  key={cidx}
+                                  onClick={() => handleSearch(`What is ${course.subject} ${course.catalogNbr}?`)}
+                                  className="text-left p-4 rounded-xl border border-border bg-background hover-elevate active-elevate-2 transition-all group"
                                 >
-                                  <p className="text-sm font-medium">{suggestion}</p>
+                                  <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-mono font-semibold text-primary">
+                                          {course.subject} {course.catalogNbr}
+                                        </span>
+                                        {course.unitsMinimum && (
+                                          <span className="text-xs text-muted-foreground">
+                                            {course.unitsMinimum === course.unitsMaximum 
+                                              ? `${course.unitsMinimum} credit${course.unitsMinimum !== 1 ? 's' : ''}`
+                                              : `${course.unitsMinimum}-${course.unitsMaximum} credits`
+                                            }
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                        {course.titleLong}
+                                      </p>
+                                    </div>
+                                    <div className="text-muted-foreground group-hover:text-primary transition-colors">
+                                      →
+                                    </div>
+                                  </div>
                                 </button>
                               ))}
                             </div>
