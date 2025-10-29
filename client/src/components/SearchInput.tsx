@@ -27,6 +27,7 @@ export default function SearchInput({
     e.preventDefault();
     if (query.trim()) {
       onSearch(query.trim());
+      setQuery(""); // Clear input after submission
     }
   };
 
@@ -136,8 +137,8 @@ export default function SearchInput({
                 key={idx}
                 data-testid={`button-recent-${idx}`}
                 onClick={() => {
-                  setQuery(recentQuery);
                   onSearch(recentQuery);
+                  setQuery(""); // Clear input after submission
                 }}
                 className="
                   flex items-center gap-2 px-4 py-2.5 rounded-xl 
