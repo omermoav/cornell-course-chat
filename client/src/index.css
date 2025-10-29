@@ -32,55 +32,55 @@
 
   --sidebar-border: 220 13% 91%;
 
-  /* Cornell Carnelian Red as primary */
-  --sidebar-primary: 0 85% 45%;
+  /* Cornell Tech Red - signature color */
+  --sidebar-primary: 0 78% 42%;
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 220 14% 91%;
+  --sidebar-accent: 220 14% 96%;
 
   --sidebar-accent-foreground: 222 15% 20%;
 
-  --sidebar-ring: 0 85% 45%;
+  --sidebar-ring: 0 78% 42%;
 
   --popover: 0 0% 100%;
 
   --popover-foreground: 222 15% 15%;
 
-  --popover-border: 220 13% 88%;
+  --popover-border: 220 13% 92%;
 
-  /* Cornell Carnelian Red */
-  --primary: 0 85% 45%;
+  /* Cornell Tech Red #B31B1B */
+  --primary: 0 78% 42%;
 
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 220 13% 92%;
+  --secondary: 220 13% 95%;
 
   --secondary-foreground: 222 15% 20%;
 
-  --muted: 220 14% 94%;
+  --muted: 220 14% 96%;
 
-  --muted-foreground: 222 10% 40%;
+  --muted-foreground: 222 10% 45%;
 
-  --accent: 35 95% 55%;
+  --accent: 200 95% 55%;
 
-  --accent-foreground: 222 15% 18%;
+  --accent-foreground: 0 0% 100%;
 
   --destructive: 0 72% 51%;
 
   --destructive-foreground: 0 0% 98%;
 
-  --input: 220 13% 85%;
-  --ring: 0 85% 45%;
-  --chart-1: 0 85% 45%;
-  --chart-2: 142 71% 45%;
+  --input: 220 13% 88%;
+  --ring: 0 78% 42%;
+  --chart-1: 0 78% 42%;
+  --chart-2: 200 95% 55%;
   --chart-3: 262 83% 58%;
   --chart-4: 35 91% 55%;
   --chart-5: 340 82% 52%;
 
-  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: "JetBrains Mono", Menlo, Monaco, "Courier New", monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "New York", Georgia, serif;
+  --font-mono: "SF Mono", ui-monospace, "Cascadia Code", Menlo, Monaco, "Courier New", monospace;
   --radius: .5rem; /* 8px */
   --shadow-2xs: 0px 1px 2px 0px hsl(220 13% 9% / 0.05);
   --shadow-xs: 0px 1px 3px 0px hsl(220 13% 9% / 0.1);
@@ -152,15 +152,15 @@
 
   --sidebar-border: 220 13% 18%;
 
-  --sidebar-primary: 0 85% 50%;
+  --sidebar-primary: 0 78% 55%;
 
   --sidebar-primary-foreground: 0 0% 100%;
 
-  --sidebar-accent: 220 13% 16%;
+  --sidebar-accent: 220 13% 18%;
 
   --sidebar-accent-foreground: 210 20% 90%;
 
-  --sidebar-ring: 0 85% 50%;
+  --sidebar-ring: 0 78% 55%;
 
   --popover: 222 18% 11%;
 
@@ -168,7 +168,7 @@
 
   --popover-border: 220 13% 18%;
 
-  --primary: 0 85% 50%;
+  --primary: 0 78% 55%;
 
   --primary-foreground: 0 0% 100%;
 
@@ -189,9 +189,9 @@
   --destructive-foreground: 0 0% 98%;
 
   --input: 220 13% 25%;
-  --ring: 0 85% 50%;
-  --chart-1: 0 85% 60%;
-  --chart-2: 142 71% 55%;
+  --ring: 0 78% 55%;
+  --chart-1: 0 78% 55%;
+  --chart-2: 200 95% 60%;
   --chart-3: 262 83% 68%;
   --chart-4: 35 91% 65%;
   --chart-5: 340 82% 62%;
@@ -369,5 +369,31 @@
     );
     background-size: 200% 100%;
     animation: skeleton-loading 1.5s ease-in-out infinite;
+  }
+
+  /* Cornell Tech inspired clean spacing */
+  .cornell-spacing {
+    letter-spacing: -0.01em;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better focus rings */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Clean card hover effect */
+  .card-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -8px hsl(var(--primary) / 0.15);
   }
 }

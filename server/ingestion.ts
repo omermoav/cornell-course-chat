@@ -46,10 +46,10 @@ export class IngestionService {
         if (group.gradingBasis) {
           gradingBases.add(group.gradingBasis);
         }
-        if (group.unitsMinimum !== undefined) {
+        if (group.unitsMinimum !== undefined && group.unitsMinimum !== null) {
           unitsMin = unitsMin === undefined ? group.unitsMinimum : Math.min(unitsMin, group.unitsMinimum);
         }
-        if (group.unitsMaximum !== undefined) {
+        if (group.unitsMaximum !== undefined && group.unitsMaximum !== null) {
           unitsMax = unitsMax === undefined ? group.unitsMaximum : Math.max(unitsMax, group.unitsMaximum);
         }
 

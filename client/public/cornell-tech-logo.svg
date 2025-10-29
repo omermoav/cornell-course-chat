@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" fill="none">
+  <!-- Cornell Tech Logo - Geometric Design -->
+  <g fill="#B31B1B">
+    <!-- Top horizontal bar -->
+    <polygon points="54,0 343,0 343,120 242,120 242,180 152,180 152,120 54,120"/>
+    
+    <!-- Right vertical element -->
+    <polygon points="343,0 442,0 442,290 342,160 342,120 343,120"/>
+    
+    <!-- Main diagonal body -->
+    <polygon points="152,180 242,180 242,120 343,120 343,160 280,470 180,470 152,360"/>
+    
+    <!-- Left lower triangle -->
+    <polygon points="54,220 152,220 152,360 100,470 54,400"/>
+    
+    <!-- Bottom triangle -->
+    <polygon points="180,470 280,470 230,360"/>
+  </g>
+</svg>
+

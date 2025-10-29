@@ -48,11 +48,11 @@ export default function AnswerCard({
   answerType
 }: AnswerCardProps) {
   return (
-    <Card data-testid="card-answer" className="shadow-lg border-2 overflow-hidden animate-fade-in">
-      {/* Header with gradient background */}
-      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 md:px-8 pt-6 pb-4">
+    <Card data-testid="card-answer" className="rounded shadow-xl border-4 border-primary overflow-hidden animate-fade-in bg-white dark:bg-gray-900">
+      {/* Header - Cornell Tech Style */}
+      <div className="bg-gray-50 dark:bg-gray-800 px-6 md:px-8 pt-6 pb-4 border-b-4 border-gray-200 dark:border-gray-700">
         {isOldData && (
-          <div className="mb-4 flex items-start gap-2 text-sm bg-muted/80 backdrop-blur-sm px-4 py-3 rounded-lg border">
+          <div className="mb-4 flex items-start gap-2 text-sm bg-muted/80 backdrop-blur-sm px-4 py-3 rounded border-4 border-muted-foreground/20">
             <FileText className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
             <span className="text-muted-foreground">
               Note: Using the most recent available data ({rosterDescr})
@@ -81,14 +81,14 @@ export default function AnswerCard({
       </div>
 
       <CardContent className="px-6 md:px-8 py-6 space-y-6">
-        {/* AI-Powered Answer */}
+        {/* AI-Powered Answer - Cornell Tech Style */}
         {aiAnswer && (
-          <div className="space-y-3 p-5 rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/20">
-            <div className="flex items-center gap-2 font-semibold text-primary">
+          <div className="space-y-3 p-5 rounded bg-primary/5 border-4 border-primary">
+            <div className="flex items-center gap-2 font-bold text-primary">
               <Sparkles className="h-5 w-5" />
               <span>AI Answer</span>
             </div>
-            <p className="text-base leading-relaxed font-medium" data-testid="text-ai-answer">
+            <p className="text-base leading-relaxed font-medium text-gray-700 dark:text-gray-300" data-testid="text-ai-answer">
               {aiAnswer}
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function AnswerCard({
         {/* Quick Facts Grid */}
         <div className="grid sm:grid-cols-2 gap-4">
           {courseInfo.unitsMinimum !== undefined && (
-            <div className="space-y-2 p-4 rounded-lg bg-card border">
+            <div className="space-y-2 p-4 rounded bg-card border-4 border-border">
               <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 <Award className="h-4 w-4" />
                 <span>Credits</span>
@@ -125,14 +125,14 @@ export default function AnswerCard({
           )}
 
           {(courseInfo.gradingBasis || courseInfo.gradingBasisVariations) && (
-            <div className="space-y-2 p-4 rounded-lg bg-card border">
+            <div className="space-y-2 p-4 rounded bg-card border-4 border-border">
               <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 <CheckCircle className="h-4 w-4" />
                 <span>Grading Basis</span>
               </div>
               {courseInfo.gradingBasisVariations && courseInfo.gradingBasisVariations.length > 1 ? (
                 <div className="space-y-2">
-                  <Badge variant="outline" className="text-sm font-medium" data-testid="text-grading-basis">
+                  <Badge className="text-sm font-medium border-4 border-gray-300" data-testid="text-grading-basis">
                     Varies by section
                   </Badge>
                   <ul className="space-y-1.5 text-sm pl-2">
@@ -184,7 +184,7 @@ export default function AnswerCard({
                     <div className="space-y-1.5" data-testid="text-schedule">
                       {courseInfo.meetingPatterns.map((pattern, idx) => (
                         <div key={idx} className="text-base">
-                          <Badge variant="outline" className="mr-2 font-semibold">{pattern.days}</Badge>
+                          <Badge className="mr-2 font-semibold border-4 border-gray-300">{pattern.days}</Badge>
                           <span className="font-medium">{pattern.timeStart} – {pattern.timeEnd}</span>
                         </div>
                       ))}
@@ -229,7 +229,7 @@ export default function AnswerCard({
                   <div className="text-sm font-medium text-muted-foreground">Cannot Be Taken With</div>
                   <div className="flex flex-wrap gap-2" data-testid="text-forbidden-overlaps">
                     {courseInfo.forbiddenOverlaps.map((overlap, idx) => (
-                      <Badge key={idx} variant="secondary" className="font-mono">
+                      <Badge key={idx} className="font-mono bg-gray-100 dark:bg-gray-800">
                         {overlap}
                       </Badge>
                     ))}
@@ -307,7 +307,7 @@ export default function AnswerCard({
               </div>
               <div className="flex flex-wrap gap-2" data-testid="text-last-terms">
                 {courseInfo.lastTermsOffered.split(',').map((term, idx) => (
-                  <Badge key={idx} variant="secondary" className="font-mono">
+                  <Badge key={idx} className="font-mono bg-gray-100 dark:bg-gray-800">
                     {term.trim()}
                   </Badge>
                 ))}
@@ -327,10 +327,9 @@ export default function AnswerCard({
             <Button
               data-testid="button-view-class"
               asChild
-              className="flex-1 h-12"
-              variant="default"
+              className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-semibold"
             >
-              <a href={classPageUrl} target="_blank" rel="noopener noreferrer">
+              <a href={classPageUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Syllabus & Full Details on Cornell
               </a>

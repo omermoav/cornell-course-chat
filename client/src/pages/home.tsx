@@ -98,30 +98,28 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Hero Header with Gradient */}
-      <header className="relative border-b overflow-hidden flex-shrink-0">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
-        
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-5">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                <GraduationCap className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-              </div>
+      {/* Cornell Tech Style Header */}
+      <header className="relative flex-shrink-0 bg-white dark:bg-gray-900 border-b-4 border-primary">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-4">
+              {/* Official Cornell Tech Logo */}
+              <img 
+                src="/cornell-tech.svg" 
+                alt="Cornell Tech Logo" 
+                className="h-14 w-14 flex-shrink-0"
+              />
               <div>
-                <div className="text-xs font-semibold text-primary uppercase tracking-wider">Cornell University</div>
-                <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  Classes Q&A
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-primary">
+                  Cornell Tech
                 </h1>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 tracking-wide">
+                  CLASSES Q&A
+                </p>
               </div>
             </div>
             <ThemeToggle />
           </div>
-          <p className="text-xs md:text-sm text-muted-foreground max-w-2xl">
-            Ask natural-language questions about Cornell courses
-          </p>
         </div>
       </header>
 
@@ -139,8 +137,8 @@ export default function Home() {
             {messages.map((msg, idx) => (
               <div key={idx} className={`space-y-4 ${msg.role === 'user' ? 'flex justify-end' : ''}`}>
                 {msg.role === 'user' ? (
-                  /* User Message */
-                  <div data-testid={`message-user-${idx}`} className="max-w-3xl rounded-2xl bg-primary/10 border border-primary/20 px-6 py-4">
+                  /* User Message - Cornell Tech Style */
+                  <div data-testid={`message-user-${idx}`} className="max-w-3xl rounded-xl bg-primary text-white px-6 py-4 shadow-md">
                     <p className="text-base font-medium">{msg.content}</p>
                   </div>
                 ) : (
@@ -162,18 +160,18 @@ export default function Home() {
                       </div>
                     )}
 
-                    {/* General Answer (no specific course) */}
+                    {/* General Answer (no specific course) - Cornell Tech Style */}
                     {msg.answer?.success && msg.content && !msg.answer?.courseInfo && (
                       <div className="space-y-4">
-                        <div className="rounded-2xl border-2 border-border bg-gradient-to-br from-background via-background to-muted/20 shadow-xl p-8">
+                        <div className="rounded border-4 border-primary bg-white dark:bg-gray-900 shadow-lg p-6">
                           <div className="space-y-4">
-                            <div className="flex items-center gap-2">
-                              <div className="p-2 rounded-lg bg-primary/10">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <GraduationCap className="h-5 w-5 text-primary" />
                               </div>
-                              <h3 className="text-lg font-semibold">Answer</h3>
+                              <h3 className="text-lg font-bold text-primary">Answer</h3>
                             </div>
-                            <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                            <p className="text-base leading-relaxed whitespace-pre-wrap text-gray-700 dark:text-gray-300">{msg.content}</p>
                           </div>
 
                           {/* Suggestions */}
@@ -188,7 +186,7 @@ export default function Home() {
                                     key={sidx}
                                     data-testid={`suggestion-${idx}-${sidx}`}
                                     onClick={() => handleSearch(suggestion)}
-                                    className="text-left p-4 rounded-xl border-2 border-border bg-card hover-elevate active-elevate-2 transition-all"
+                                    className="text-left p-4 rounded border-4 border-border bg-card hover-elevate active-elevate-2 transition-all"
                                   >
                                     <p className="text-sm font-medium">{suggestion}</p>
                                   </button>
@@ -198,16 +196,16 @@ export default function Home() {
                           )}
                         </div>
 
-                        {/* Course List (if present) */}
+                        {/* Course List (if present) - Cornell Tech Style */}
                         {msg.answer.courseList && msg.answer.courseList.length > 0 && (
-                          <div className="rounded-2xl border-2 border-border bg-card p-6">
-                            <h4 className="text-lg font-semibold mb-4">Available Courses ({msg.answer.courseList.length})</h4>
+                          <div className="rounded border-4 border-primary bg-white dark:bg-gray-900 shadow-lg p-6">
+                            <h4 className="text-lg font-bold text-primary mb-4">Available Courses ({msg.answer.courseList.length})</h4>
                             <div className="grid gap-3">
                               {msg.answer.courseList.map((course, cidx) => (
                                 <button
                                   key={cidx}
                                   onClick={() => handleSearch(`What is ${course.subject} ${course.catalogNbr}?`)}
-                                  className="text-left p-4 rounded-xl border border-border bg-background hover-elevate active-elevate-2 transition-all group"
+                                  className="text-left p-4 rounded border-4 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-primary hover:bg-primary/5 transition-all group"
                                 >
                                   <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
@@ -244,7 +242,7 @@ export default function Home() {
 
                     {/* Error Messages */}
                     {msg.answer && !msg.answer.success && (
-                      <div className="rounded-2xl border-2 border-destructive/50 bg-destructive/10 p-6">
+                      <div className="rounded border-4 border-destructive/50 bg-destructive/10 p-6">
                         <p className="text-base text-destructive">{msg.answer.error || msg.content}</p>
                       </div>
                     )}
