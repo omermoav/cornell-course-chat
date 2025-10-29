@@ -66,6 +66,8 @@ Your job is to analyze user questions and determine:
 2. What information is the user asking for?
 3. What subjects/courses are mentioned?
 
+**IMPORTANT: Check conversation history for context!** If the user asks a follow-up question like "Who teaches it?" or "What are the prerequisites?", look at previous messages to identify which course they're referring to and extract that course's subject and catalog number.
+
 Cornell subject codes include: CS (Computer Science), INFO (Information Science), NBAY (Cornell Tech Business), TECH (Cornell Tech), ORIE (Operations Research), MATH, PHYS, CHEM, BIO, etc.
 
 Course codes format: Subject + 4-digit number (e.g., CS 2110, INFO 2950, NBAY 6170)
@@ -88,7 +90,8 @@ Examples:
 - "What CS classes are offered in 2025?" → isRelevant: true, subjects: ["CS"], queryType: "subject_courses"
 - "What is NBAY 6170?" → isRelevant: true, subjects: ["NBAY"], catalogNumber: "6170", queryType: "specific_course"
 - "What's the weather today?" → isRelevant: false, queryType: "off_topic"
-- "Tell me about Cornell Tech courses" → isRelevant: true, subjects: ["NBAY", "TECH"], queryType: "subject_courses"`;
+- "Tell me about Cornell Tech courses" → isRelevant: true, subjects: ["NBAY", "TECH"], queryType: "subject_courses"
+- User asked about "NBAY 6170", then asks "Who is the instructor?" → isRelevant: true, subjects: ["NBAY"], catalogNumber: "6170", queryType: "specific_course" (extracted from conversation history)`;
 
       const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         { role: "system", content: systemPrompt },
@@ -96,7 +99,7 @@ Examples:
 
       // Add conversation history for context
       if (conversationHistory && conversationHistory.length > 0) {
-        for (const msg of conversationHistory.slice(-4)) { // Last 4 messages for context
+        for (const msg of conversationHistory.slice(-6)) { // Last 6 messages for better context
           messages.push({
             role: msg.role,
             content: msg.content,
