@@ -103,22 +103,22 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
         
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
-                <GraduationCap className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-5">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                <GraduationCap className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
               <div>
-                <div className="text-xs md:text-sm font-semibold text-primary uppercase tracking-wider">Cornell University</div>
-                <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                <div className="text-xs font-semibold text-primary uppercase tracking-wider">Cornell University</div>
+                <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                   Classes Q&A
                 </h1>
               </div>
             </div>
             <ThemeToggle />
           </div>
-          <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
+          <p className="text-xs md:text-sm text-muted-foreground max-w-2xl">
             Ask natural-language questions about Cornell courses
           </p>
         </div>
@@ -126,9 +126,9 @@ export default function Home() {
 
       {/* Main Content - Scrollable Messages Area */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Conversation Display */}
-          <div className="max-w-4xl mx-auto space-y-6 pb-6">
+          <div className="max-w-4xl mx-auto space-y-4 pb-4">
             {/* Show empty state if no messages */}
             {messages.length === 0 && !searchMutation.isPending && (
               <StatusMessage type="empty" />

@@ -126,27 +126,27 @@ export default function StatusMessage({
 
   // empty state
   return (
-    <div data-testid="status-empty" className="py-16 space-y-6 text-center animate-fade-in">
+    <div data-testid="status-empty" className="py-8 space-y-4 text-center animate-fade-in">
       <div className="relative inline-block">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="relative p-8 rounded-full bg-gradient-to-br from-muted/50 to-muted/30">
-          <BookOpen className="h-16 w-16 text-muted-foreground" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 rounded-full blur-2xl animate-pulse" />
+        <div className="relative p-6 rounded-full bg-gradient-to-br from-muted/50 to-muted/30">
+          <BookOpen className="h-12 w-12 text-muted-foreground" />
         </div>
       </div>
-      <div className="space-y-3 max-w-md mx-auto">
+      <div className="space-y-2 max-w-md mx-auto">
         <div className="flex items-center justify-center gap-2">
-          <h3 className="text-2xl font-bold">Search Cornell Classes</h3>
-          <Sparkles className="h-5 w-5 text-primary" />
+          <h3 className="text-xl font-bold">Search Cornell Classes</h3>
+          <Sparkles className="h-4 w-4 text-primary" />
         </div>
-        <p className="text-base text-muted-foreground leading-relaxed">
+        <p className="text-sm text-muted-foreground">
           Get instant answers about grading, credits, schedules, and more from the official Cornell Class Roster
         </p>
       </div>
-      <div className="flex flex-wrap gap-2 justify-center text-sm text-muted-foreground">
-        <span className="px-3 py-1 rounded-full bg-muted/50">Pass/Fail Options</span>
-        <span className="px-3 py-1 rounded-full bg-muted/50">Credit Hours</span>
-        <span className="px-3 py-1 rounded-full bg-muted/50">Meeting Times</span>
-        <span className="px-3 py-1 rounded-full bg-muted/50">Instructors</span>
+      <div className="flex flex-wrap gap-1.5 justify-center text-xs text-muted-foreground">
+        <span className="px-2.5 py-1 rounded-full bg-muted/50">Pass/Fail Options</span>
+        <span className="px-2.5 py-1 rounded-full bg-muted/50">Credit Hours</span>
+        <span className="px-2.5 py-1 rounded-full bg-muted/50">Meeting Times</span>
+        <span className="px-2.5 py-1 rounded-full bg-muted/50">Instructors</span>
       </div>
     </div>
   );

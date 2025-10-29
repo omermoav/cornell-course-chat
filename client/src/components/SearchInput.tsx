@@ -43,7 +43,7 @@ export default function SearchInput({
     : "Ask about any Cornell class...";
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-4xl mx-auto space-y-4">
       {/* Main Search Bar */}
       <form onSubmit={handleSubmit} className="relative">
         <div className={`
@@ -58,18 +58,18 @@ export default function SearchInput({
             ${isFocused ? 'opacity-100' : 'opacity-0'}
           `} />
           
-          <div className="flex items-center gap-3 bg-background rounded-2xl shadow-2xl border-2 border-border px-4 py-4">
+          <div className="flex items-center gap-2 bg-background rounded-2xl shadow-lg border-2 border-border px-3 py-2">
             <Button
               data-testid="button-search"
               type="submit"
               size="icon"
               disabled={isLoading || !query.trim()}
-              className="h-12 w-12 rounded-full flex-shrink-0 disabled:opacity-40 cursor-pointer transition-all hover:scale-105 active:scale-95"
+              className="h-10 w-10 rounded-full flex-shrink-0 disabled:opacity-40 cursor-pointer transition-all hover:scale-105 active:scale-95"
             >
               {isLoading ? (
-                <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                <div className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
               ) : (
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4" />
               )}
             </Button>
             
@@ -88,7 +88,7 @@ export default function SearchInput({
               }}
               placeholder={placeholderText}
               className="
-                flex-1 h-12 px-4 text-lg rounded-xl
+                flex-1 h-10 px-3 text-base rounded-xl
                 border-0 focus-visible:ring-0 bg-transparent
                 placeholder:text-muted-foreground/60
                 transition-all duration-300
@@ -100,8 +100,8 @@ export default function SearchInput({
 
         {/* Search hints */}
         {!compact && (
-          <div className="mt-3 text-center">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-2 text-center">
+            <p className="text-xs text-muted-foreground">
               Search by course code <span className="text-foreground font-medium">(NBAY 6170)</span> or 
               course name <span className="text-foreground font-medium">("Designing & Building AI")</span>
             </p>
@@ -156,17 +156,17 @@ export default function SearchInput({
       
       {/* Example Questions */}
       {!compact && (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-center gap-2">
           <div className="h-px flex-1 bg-border" />
-          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground px-3">
-            <Sparkles className="h-4 w-4 text-primary" />
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground px-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span>Example Questions</span>
           </div>
           <div className="h-px flex-1 bg-border" />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {exampleQuestions.map((item, idx) => {
             const Icon = item.icon;
             return (
@@ -178,17 +178,17 @@ export default function SearchInput({
                   inputRef.current?.focus();
                 }}
                 className="
-                  flex items-center gap-3 p-4 rounded-xl 
-                  bg-card border-2 border-border
-                  text-left text-sm font-medium
+                  flex items-center gap-2 p-3 rounded-lg 
+                  bg-card border border-border
+                  text-left text-xs font-medium
                   hover-elevate active-elevate-2 transition-all
                   group
                 "
               >
-                <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <Icon className="h-5 w-5 text-primary" />
+                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
-                <span className="text-card-foreground group-hover:text-foreground transition-colors">
+                <span className="text-card-foreground group-hover:text-foreground transition-colors line-clamp-2">
                   {item.text}
                 </span>
               </button>
