@@ -9,13 +9,15 @@ interface SearchInputProps {
   isLoading?: boolean;
   recentQueries?: string[];
   onClearRecent?: () => void;
+  compact?: boolean;
 }
 
 export default function SearchInput({ 
   onSearch, 
   isLoading = false,
   recentQueries = [],
-  onClearRecent
+  onClearRecent,
+  compact = false
 }: SearchInputProps) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -97,16 +99,18 @@ export default function SearchInput({
         </div>
 
         {/* Search hints */}
-        <div className="mt-3 text-center">
-          <p className="text-sm text-muted-foreground">
-            Search by course code <span className="text-foreground font-medium">(NBAY 6170)</span> or 
-            course name <span className="text-foreground font-medium">("Designing & Building AI")</span>
-          </p>
-        </div>
+        {!compact && (
+          <div className="mt-3 text-center">
+            <p className="text-sm text-muted-foreground">
+              Search by course code <span className="text-foreground font-medium">(NBAY 6170)</span> or 
+              course name <span className="text-foreground font-medium">("Designing & Building AI")</span>
+            </p>
+          </div>
+        )}
       </form>
 
       {/* Recent Queries */}
-      {recentQueries.length > 0 && (
+      {!compact && recentQueries.length > 0 && (
         <div className="space-y-3 animate-fade-in">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -151,6 +155,7 @@ export default function SearchInput({
       )}
       
       {/* Example Questions */}
+      {!compact && (
       <div className="space-y-4">
         <div className="flex items-center justify-center gap-2">
           <div className="h-px flex-1 bg-border" />
@@ -191,6 +196,7 @@ export default function SearchInput({
           })}
         </div>
       </div>
+      )}
     </div>
   );
 }

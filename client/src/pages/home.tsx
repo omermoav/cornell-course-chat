@@ -267,6 +267,7 @@ export default function Home() {
               isLoading={searchMutation.isPending}
               recentQueries={recentQueries}
               onClearRecent={handleClearRecent}
+              compact={messages.length > 0}
             />
             
             {/* Footer Info */}
