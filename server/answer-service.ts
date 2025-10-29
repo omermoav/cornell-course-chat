@@ -128,6 +128,44 @@ ${understanding.suggestedQuery ? `Perhaps you meant to ask: "${understanding.sug
           const latestRoster = await storage.getLatestRoster();
           const isOldData = latestRoster ? latestCourse.rosterSlug !== latestRoster.slug : false;
           const intent = intentParser.detectIntent(query);
+          
+          // Check if this is a follow-up question (conversation exists and mentions same course)
+          const isFollowUp = conversationHistory && conversationHistory.length > 0 && 
+            conversationHistory.some(msg => 
+              msg.content.includes(subject) && msg.content.includes(catalogNbr)
+            );
+          
+          // For follow-up questions, return just the AI answer without the full course card
+          if (isFollowUp) {
+            const courseContext = {
+              subject: latestCourse.subject,
+              catalogNbr: latestCourse.catalogNbr,
+              titleLong: latestCourse.titleLong,
+              description: latestCourse.description,
+              gradingBasis: latestCourse.gradingBasis,
+              unitsMinimum: latestCourse.unitsMinimum,
+              unitsMaximum: latestCourse.unitsMaximum,
+              instructors: latestCourse.instructors,
+              meetingPatterns: latestCourse.meetingPatterns,
+              prerequisites: latestCourse.prerequisites,
+              rosterDescr: latestCourse.rosterDescr,
+            };
+            
+            const aiAnswer = await aiService.generateAnswer(query, courseContext, intent, conversationHistory);
+            
+            return {
+              success: true,
+              aiAnswer,
+              answerType: intent,
+              suggestions: [
+                "What are the prerequisites?",
+                "When does it meet?",
+                "How many credits is it?",
+                `What other ${subject} courses are offered?`,
+              ]
+            };
+          }
+          
           return this.buildAnswerFromCourse(latestCourse, intent, isOldData, query, conversationHistory);
         }
       }
