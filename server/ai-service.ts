@@ -66,32 +66,35 @@ Your job is to analyze user questions and determine:
 2. What information is the user asking for?
 3. What subjects/courses are mentioned?
 
-**IMPORTANT: Check conversation history for context!** If the user asks a follow-up question like "Who teaches it?" or "What are the prerequisites?", look at previous messages to identify which course they're referring to and extract that course's subject and catalog number.
+**CRITICAL INSTRUCTION FOR FOLLOW-UP QUESTIONS:**
+- ALWAYS scan conversation history first before analyzing the current question
+- If the current question contains pronouns ("it", "they") or implicit references ("the instructor", "the prerequisites", "when does it meet"), you MUST extract the course code from previous messages
+- Look for course codes in format: SUBJECT + NUMBER (e.g., CS 2110, ORIE 3500, NBAY 6170)
+- Extract BOTH the subject AND catalog number from the conversation history
 
-Cornell subject codes include: CS (Computer Science), INFO (Information Science), NBAY (Cornell Tech Business), TECH (Cornell Tech), ORIE (Operations Research), MATH, PHYS, CHEM, BIO, etc.
-
-Course codes format: Subject + 4-digit number (e.g., CS 2110, INFO 2950, NBAY 6170)
+Cornell subject codes: CS, INFO, NBAY, TECH, ORIE, MATH, PHYS, CHEM, BIO, etc.
+Course format: Subject + 4-digit number (e.g., CS 2110, INFO 2950, NBAY 6170, ORIE 3500)
 
 Respond in JSON format:
 {
   "isRelevant": true/false,
-  "reasoning": "brief explanation",
+  "reasoning": "brief explanation, mention if extracted from conversation history",
   "extractedInfo": {
-    "subjects": ["CS", "INFO"] or null,
+    "subjects": ["CS"] or null,
     "catalogNumber": "2110" or null,
     "term": "fall" or null,
     "year": "2025" or null,
     "queryType": "specific_course" | "subject_courses" | "general_inquiry" | "off_topic"
   },
-  "suggestedQuery": "reformulated query if needed" or null
+  "suggestedQuery": null
 }
 
-Examples:
-- "What CS classes are offered in 2025?" → isRelevant: true, subjects: ["CS"], queryType: "subject_courses"
-- "What is NBAY 6170?" → isRelevant: true, subjects: ["NBAY"], catalogNumber: "6170", queryType: "specific_course"
-- "What's the weather today?" → isRelevant: false, queryType: "off_topic"
-- "Tell me about Cornell Tech courses" → isRelevant: true, subjects: ["NBAY", "TECH"], queryType: "subject_courses"
-- User asked about "NBAY 6170", then asks "Who is the instructor?" → isRelevant: true, subjects: ["NBAY"], catalogNumber: "6170", queryType: "specific_course" (extracted from conversation history)`;
+Examples with conversation context:
+- New question: "What CS classes are offered?" → subjects: ["CS"], catalogNumber: null, queryType: "subject_courses"
+- New question: "What is NBAY 6170?" → subjects: ["NBAY"], catalogNumber: "6170", queryType: "specific_course"
+- Previous: "Prerequisites for ORIE 3500?", Current: "Who's the instructor?" → subjects: ["ORIE"], catalogNumber: "3500", queryType: "specific_course" (EXTRACTED FROM HISTORY)
+- Previous: "Is CS 4780 pass/fail?", Current: "Who teaches it?" → subjects: ["CS"], catalogNumber: "4780", queryType: "specific_course" (EXTRACTED FROM HISTORY)
+- Previous: "Tell me about INFO 2950", Current: "What are the prerequisites?" → subjects: ["INFO"], catalogNumber: "2950", queryType: "specific_course" (EXTRACTED FROM HISTORY)`;
 
       const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         { role: "system", content: systemPrompt },
@@ -105,12 +108,19 @@ Examples:
             content: msg.content,
           });
         }
+        
+        // Make it explicit that this is a follow-up question
+        messages.push({
+          role: "user",
+          content: `Analyze this question: "${userQuestion}"\n\nIMPORTANT: This is a follow-up question. Check the conversation history above for any course codes (SUBJECT + NUMBER) that this question might be referring to.`,
+        });
+      } else {
+        // First question in conversation
+        messages.push({
+          role: "user",
+          content: `Analyze this question: "${userQuestion}"`,
+        });
       }
-
-      messages.push({
-        role: "user",
-        content: `Analyze this question: "${userQuestion}"`,
-      });
 
       // Use different models based on provider
       const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
