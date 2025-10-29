@@ -23,6 +23,19 @@ interface CourseContext {
   rosterDescr: string;
 }
 
+export interface QueryUnderstanding {
+  isRelevant: boolean;
+  reasoning: string;
+  extractedInfo: {
+    subjects?: string[];
+    catalogNumber?: string;
+    term?: string;
+    year?: string;
+    queryType: 'specific_course' | 'subject_courses' | 'general_inquiry' | 'off_topic';
+  };
+  suggestedQuery?: string;
+}
+
 export class AIService {
   private openai: OpenAI;
 
@@ -31,6 +44,88 @@ export class AIService {
       baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
       apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
     });
+  }
+
+  /**
+   * Use AI to understand the user's query and determine if it's relevant
+   */
+  async understandQuery(userQuestion: string, conversationHistory?: ChatMessage[]): Promise<QueryUnderstanding> {
+    try {
+      const systemPrompt = `You are a query understanding system for a Cornell University course information chatbot.
+
+Your job is to analyze user questions and determine:
+1. Is this question relevant to Cornell University courses? (course details, schedules, prerequisites, grading, etc.)
+2. What information is the user asking for?
+3. What subjects/courses are mentioned?
+
+Cornell subject codes include: CS (Computer Science), INFO (Information Science), NBAY (Cornell Tech Business), TECH (Cornell Tech), ORIE (Operations Research), MATH, PHYS, CHEM, BIO, etc.
+
+Course codes format: Subject + 4-digit number (e.g., CS 2110, INFO 2950, NBAY 6170)
+
+Respond in JSON format:
+{
+  "isRelevant": true/false,
+  "reasoning": "brief explanation",
+  "extractedInfo": {
+    "subjects": ["CS", "INFO"] or null,
+    "catalogNumber": "2110" or null,
+    "term": "fall" or null,
+    "year": "2025" or null,
+    "queryType": "specific_course" | "subject_courses" | "general_inquiry" | "off_topic"
+  },
+  "suggestedQuery": "reformulated query if needed" or null
+}
+
+Examples:
+- "What CS classes are offered in 2025?" → isRelevant: true, subjects: ["CS"], queryType: "subject_courses"
+- "What is NBAY 6170?" → isRelevant: true, subjects: ["NBAY"], catalogNumber: "6170", queryType: "specific_course"
+- "What's the weather today?" → isRelevant: false, queryType: "off_topic"
+- "Tell me about Cornell Tech courses" → isRelevant: true, subjects: ["NBAY", "TECH"], queryType: "subject_courses"`;
+
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: "system", content: systemPrompt },
+      ];
+
+      // Add conversation history for context
+      if (conversationHistory && conversationHistory.length > 0) {
+        for (const msg of conversationHistory.slice(-4)) { // Last 4 messages for context
+          messages.push({
+            role: msg.role,
+            content: msg.content,
+          });
+        }
+      }
+
+      messages.push({
+        role: "user",
+        content: `Analyze this question: "${userQuestion}"`,
+      });
+
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages,
+        temperature: 0.3, // Lower temperature for more consistent parsing
+        max_tokens: 300,
+        response_format: { type: "json_object" },
+      });
+
+      const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
+      
+      return {
+        isRelevant: result.isRelevant ?? true, // Default to true to be helpful
+        reasoning: result.reasoning || "Unable to parse query",
+        extractedInfo: result.extractedInfo || { queryType: 'general_inquiry' },
+        suggestedQuery: result.suggestedQuery,
+      };
+    } catch (error) {
+      console.error("Query understanding error:", error);
+      // Default to treating as relevant general inquiry
+      return {
+        isRelevant: true,
+        reasoning: "Error parsing query, treating as general inquiry",
+        extractedInfo: { queryType: 'general_inquiry' },
+      };
+    }
   }
 
   async handleBroadQuestion(

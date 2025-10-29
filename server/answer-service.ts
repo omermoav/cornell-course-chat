@@ -85,6 +85,34 @@ export class AnswerService {
   }
 
   async answer(query: string, conversationHistory?: ChatMessage[]): Promise<AnswerResponse> {
+    // Use AI to understand the query first
+    const understanding = await aiService.understandQuery(query, conversationHistory);
+    
+    // Handle off-topic questions politely
+    if (!understanding.isRelevant) {
+      return {
+        success: true,
+        aiAnswer: `I appreciate your question, but I'm specifically designed to help with Cornell University course information. I can answer questions about:
+
+• Specific courses (e.g., "What is CS 2110?")
+• Course schedules and instructors
+• Prerequisites and requirements
+• Grading policies
+• Learning outcomes
+• Available courses in different subjects
+
+${understanding.suggestedQuery ? `Perhaps you meant to ask: "${understanding.suggestedQuery}"?` : 'Feel free to ask me anything about Cornell courses!'}`,
+        answerType: 'general',
+        suggestions: [
+          "What is NBAY 6170?",
+          "What CS courses are offered?",
+          "Prerequisites for ORIE 3500?",
+          "Is CS 4780 pass/fail?",
+        ]
+      };
+    }
+    
+    // Use the traditional parser as fallback, but enhanced with AI understanding
     const parsed = intentParser.parse(query);
 
     // Try title search if no course code found
@@ -129,6 +157,48 @@ export class AnswerService {
 
     // Handle broad questions without specific course info
     if (!intentParser.isValid(parsed)) {
+      // Check if AI understanding extracted subjects
+      if (understanding.extractedInfo.subjects && understanding.extractedInfo.subjects.length > 0) {
+        // Use AI-extracted subject(s) to search
+        const subject = understanding.extractedInfo.subjects[0]; // Use first subject
+        const courses = await storage.getCoursesBySubject(subject, 100);
+        
+        if (courses.length > 0) {
+          // Group by catalog number to get unique courses
+          const uniqueCourses = new Map<string, StoredCourse>();
+          for (const course of courses) {
+            const key = `${course.subject}-${course.catalogNbr}`;
+            if (!uniqueCourses.has(key)) {
+              uniqueCourses.set(key, course);
+            }
+          }
+
+          const courseList = Array.from(uniqueCourses.values())
+            .slice(0, 20)
+            .map(c => `${c.subject} ${c.catalogNbr} - ${c.titleLong}`)
+            .join('\n');
+
+          const latestRoster = await storage.getLatestRoster();
+          const latestTerm = latestRoster ? latestRoster.descr : "the latest available term";
+          
+          let contextNote = "";
+          if (understanding.extractedInfo.term || understanding.extractedInfo.year) {
+            contextNote = `\n\nNote: Course schedules vary by semester. This data is from ${latestTerm}. For the most current information about specific terms, please check the official Cornell Class Roster at classes.cornell.edu.`;
+          }
+
+          const availableData = `Subject: ${subject}\nTotal courses: ${uniqueCourses.size}\nData from: ${latestTerm}\n\nSample courses:\n${courseList}${contextNote}`;
+          const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
+
+          return {
+            success: true,
+            aiAnswer: aiResponse,
+            answerType: 'general',
+            courseList: Array.from(uniqueCourses.values()).slice(0, 20),
+          };
+        }
+      }
+      
+      // No valid parsing and no AI-extracted subjects - general inquiry
       const stats = await storage.getStats();
       const availableData = `I have access to ${stats.courses} Cornell courses across ${stats.rosters} semesters. I can help you with:
 - Course descriptions and details (e.g., "What is NBAY 6170?")
