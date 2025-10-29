@@ -40,10 +40,16 @@ export class AIService {
   private openai: OpenAI;
 
   constructor() {
+    // Support both OpenAI and Groq (free alternative)
+    const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || 'https://api.groq.com/openai/v1';
+    const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+    
     this.openai = new OpenAI({
-      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      baseURL,
+      apiKey,
     });
+    
+    console.log('[AIService] Initialized with base URL:', baseURL);
   }
 
   /**
@@ -103,8 +109,12 @@ Examples:
         content: `Analyze this question: "${userQuestion}"`,
       });
 
+      // Use different models based on provider
+      const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
+      const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+      
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model,
         messages,
         temperature: 0.3, // Lower temperature for more consistent parsing
         max_tokens: 300,
@@ -178,8 +188,12 @@ Keep answers conversational, helpful, and clear about data limitations.`;
         content: `Available Data:\n${availableData}\n\nStudent Question: ${userQuestion}`,
       });
 
+      // Use different models based on provider
+      const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
+      const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+      
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model,
         messages,
         temperature: 0.8,
         max_tokens: 500,
@@ -302,8 +316,12 @@ Critical Rules:
         content: `Course Information:\n${courseInfo}\n\nStudent Question: ${userQuestion}`,
       });
 
+      // Use different models based on provider
+      const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
+      const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+      
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model,
         messages,
         temperature: 0.7,
         max_tokens: 200,
