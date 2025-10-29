@@ -111,7 +111,7 @@ Examples:
 
       // Use different models based on provider
       const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
-      const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+      const model = isGroq ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
       
       const completion = await this.openai.chat.completions.create({
         model,
@@ -190,7 +190,7 @@ Keep answers conversational, helpful, and clear about data limitations.`;
 
       // Use different models based on provider
       const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
-      const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+      const model = isGroq ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
       
       const completion = await this.openai.chat.completions.create({
         model,
@@ -318,7 +318,7 @@ Critical Rules:
 
       // Use different models based on provider
       const isGroq = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL?.includes('groq.com');
-      const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+      const model = isGroq ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
       
       const completion = await this.openai.chat.completions.create({
         model,

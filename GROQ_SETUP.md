@@ -110,16 +110,17 @@ When you submit a query, you should see:
 
 ## 🔧 Available Groq Models
 
-The code is configured to use `llama-3.1-70b-versatile` which is the best general-purpose model.
+The code is configured to use `llama-3.3-70b-versatile` which is the latest and best general-purpose model.
 
 Other options (if you want to change):
-- `llama-3.1-70b-versatile` - Best for general tasks ✅ (default)
+- `llama-3.3-70b-versatile` - Latest Llama model, best for general tasks ✅ (default)
+- `llama-3.1-8b-instant` - Faster, smaller, still good quality
 - `mixtral-8x7b-32768` - Good alternative, longer context
-- `gemma2-9b-it` - Smaller, faster, still good
+- `gemma2-9b-it` - Smaller, faster
 
-To change models, edit line 114 in `server/ai-service.ts`:
+To change models, edit line 114, 193, 321 in `server/ai-service.ts`:
 ```typescript
-const model = isGroq ? "mixtral-8x7b-32768" : "gpt-4o-mini";
+const model = isGroq ? "llama-3.1-8b-instant" : "gpt-4o-mini";
 ```
 
 ---
