@@ -184,7 +184,19 @@ export class AnswerService {
         .map(c => `${c.subject} ${c.catalogNbr} - ${c.titleLong}`)
         .join('\n');
 
-      const availableData = `Subject: ${parsed.subject}\nTotal courses: ${uniqueCourses.size}\n\nSample courses:\n${courseList}`;
+      // Check if this is a temporal query (asking about specific semester/term)
+      const lowerQuery = query.toLowerCase();
+      const isTemporalQuery = lowerQuery.match(/\b(fall|spring|summer|winter|semester|term|20\d{2})\b/) !== null;
+      
+      const latestRoster = await storage.getLatestRoster();
+      const latestTerm = latestRoster ? latestRoster.descr : "the latest available term";
+      
+      let contextNote = "";
+      if (isTemporalQuery) {
+        contextNote = `\n\nNote: Course schedules vary by semester. This data is from ${latestTerm}. For the most current information about specific terms, please check the official Cornell Class Roster at classes.cornell.edu.`;
+      }
+
+      const availableData = `Subject: ${parsed.subject}\nTotal courses: ${uniqueCourses.size}\nData from: ${latestTerm}\n\nSample courses:\n${courseList}${contextNote}`;
       const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
 
       return {
