@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ThumbsUp, ThumbsDown, Copy, Share2, RotateCw } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -90,36 +90,6 @@ export default function FeedbackButtons({ onFeedback, messageContent }: Feedback
           </TooltipTrigger>
           <TooltipContent>
             <p>Bad response</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-muted"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Share</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 hover:bg-muted"
-            >
-              <RotateCw className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Regenerate</p>
           </TooltipContent>
         </Tooltip>
       </div>
