@@ -4,6 +4,7 @@ import SearchInput from "@/components/SearchInput";
 import AnswerCard from "@/components/AnswerCard";
 import StatusMessage from "@/components/StatusMessage";
 import ThemeToggle from "@/components/ThemeToggle";
+import FeedbackButtons from "@/components/FeedbackButtons";
 import { GraduationCap } from "lucide-react";
 import type { AnswerResponse, ChatMessage } from "@shared/schema";
 
@@ -147,15 +148,18 @@ export default function Home() {
                   <div data-testid={`message-assistant-${idx}`} className="w-full space-y-4">
                     {/* Full Course Card */}
                     {msg.answer?.courseInfo && (
-                      <AnswerCard
-                        aiAnswer={msg.answer.aiAnswer}
-                        courseInfo={msg.answer.courseInfo}
-                        rosterSlug={msg.answer.rosterSlug!}
-                        rosterDescr={msg.answer.rosterDescr!}
-                        isOldData={msg.answer.isOldData}
-                        classPageUrl={msg.answer.classPageUrl!}
-                        answerType={msg.answer.answerType || "general"}
-                      />
+                      <div className="space-y-2">
+                        <AnswerCard
+                          aiAnswer={msg.answer.aiAnswer}
+                          courseInfo={msg.answer.courseInfo}
+                          rosterSlug={msg.answer.rosterSlug!}
+                          rosterDescr={msg.answer.rosterDescr!}
+                          isOldData={msg.answer.isOldData}
+                          classPageUrl={msg.answer.classPageUrl!}
+                          answerType={msg.answer.answerType || "general"}
+                        />
+                        <FeedbackButtons messageContent={msg.content} />
+                      </div>
                     )}
 
                     {/* General Answer (no specific course) */}
@@ -233,6 +237,8 @@ export default function Home() {
                             </div>
                           </div>
                         )}
+                        
+                        <FeedbackButtons messageContent={msg.content} />
                       </div>
                     )}
 
