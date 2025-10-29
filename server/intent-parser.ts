@@ -78,7 +78,7 @@ export class IntentParser {
   /**
    * Detect the intent of the question based on keywords
    */
-  private detectIntent(query: string): QuestionIntent {
+  detectIntent(query: string): QuestionIntent {
     const lowerQuery = query.toLowerCase();
     
     // Prerequisites / requirements

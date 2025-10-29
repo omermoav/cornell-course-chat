@@ -88,6 +88,8 @@ export class AnswerService {
     // Use AI to understand the query first
     const understanding = await aiService.understandQuery(query, conversationHistory);
     
+    console.log('[AnswerService] AI Understanding:', JSON.stringify(understanding, null, 2));
+    
     // Handle off-topic questions politely
     if (!understanding.isRelevant) {
       return {
@@ -112,7 +114,62 @@ ${understanding.suggestedQuery ? `Perhaps you meant to ask: "${understanding.sug
       };
     }
     
-    // Use the traditional parser as fallback, but enhanced with AI understanding
+    // If AI successfully extracted subjects, use them directly
+    if (understanding.extractedInfo.subjects && understanding.extractedInfo.subjects.length > 0) {
+      console.log('[AnswerService] Using AI-extracted subjects:', understanding.extractedInfo.subjects);
+      
+      const subject = understanding.extractedInfo.subjects[0];
+      const catalogNbr = understanding.extractedInfo.catalogNumber;
+      
+      // Specific course query
+      if (catalogNbr) {
+        const latestCourse = await storage.getLatestCourse(subject, catalogNbr);
+        if (latestCourse) {
+          const latestRoster = await storage.getLatestRoster();
+          const isOldData = latestRoster ? latestCourse.rosterSlug !== latestRoster.slug : false;
+          const intent = intentParser.detectIntent(query);
+          return this.buildAnswerFromCourse(latestCourse, intent, isOldData, query, conversationHistory);
+        }
+      }
+      
+      // Subject-only query
+      const courses = await storage.getCoursesBySubject(subject, 100);
+      if (courses.length > 0) {
+        const uniqueCourses = new Map<string, StoredCourse>();
+        for (const course of courses) {
+          const key = `${course.subject}-${course.catalogNbr}`;
+          if (!uniqueCourses.has(key)) {
+            uniqueCourses.set(key, course);
+          }
+        }
+
+        const courseList = Array.from(uniqueCourses.values())
+          .slice(0, 20)
+          .map(c => `${c.subject} ${c.catalogNbr} - ${c.titleLong}`)
+          .join('\n');
+
+        const latestRoster = await storage.getLatestRoster();
+        const latestTerm = latestRoster ? latestRoster.descr : "the latest available term";
+        
+        let contextNote = "";
+        if (understanding.extractedInfo.term || understanding.extractedInfo.year) {
+          contextNote = `\n\nNote: Course schedules vary by semester. This data is from ${latestTerm}. For the most current information about specific terms, please check the official Cornell Class Roster at classes.cornell.edu.`;
+        }
+
+        const availableData = `Subject: ${subject}\nTotal courses: ${uniqueCourses.size}\nData from: ${latestTerm}\n\nSample courses:\n${courseList}${contextNote}`;
+        const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
+
+        return {
+          success: true,
+          aiAnswer: aiResponse,
+          answerType: 'general',
+          courseList: Array.from(uniqueCourses.values()).slice(0, 20),
+        };
+      }
+    }
+    
+    // Use the traditional parser as fallback
+    console.log('[AnswerService] Falling back to traditional parser');
     const parsed = intentParser.parse(query);
 
     // Try title search if no course code found

@@ -51,6 +51,8 @@ export class AIService {
    */
   async understandQuery(userQuestion: string, conversationHistory?: ChatMessage[]): Promise<QueryUnderstanding> {
     try {
+      console.log('[AIService] Understanding query:', userQuestion);
+      
       const systemPrompt = `You are a query understanding system for a Cornell University course information chatbot.
 
 Your job is to analyze user questions and determine:
@@ -111,14 +113,20 @@ Examples:
 
       const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
       
-      return {
+      const understanding = {
         isRelevant: result.isRelevant ?? true, // Default to true to be helpful
         reasoning: result.reasoning || "Unable to parse query",
         extractedInfo: result.extractedInfo || { queryType: 'general_inquiry' },
         suggestedQuery: result.suggestedQuery,
       };
+      
+      console.log('[AIService] Understanding result:', JSON.stringify(understanding, null, 2));
+      
+      return understanding;
     } catch (error) {
-      console.error("Query understanding error:", error);
+      console.error('[AIService] Query understanding error:', error);
+      console.error('[AIService] Error details:', error instanceof Error ? error.message : 'Unknown error');
+      
       // Default to treating as relevant general inquiry
       return {
         isRelevant: true,
