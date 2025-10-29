@@ -133,10 +133,29 @@ ${understanding.suggestedQuery ? `Perhaps you meant to ask: "${understanding.sug
       }
       
       // Subject-only query
+      // Determine target roster based on extracted term/year
+      let targetRoster = await storage.getLatestRoster();
+      if (understanding.extractedInfo.term && understanding.extractedInfo.year) {
+        const allRosters = await storage.getRosters();
+        const requestedRoster = allRosters.find(r => 
+          r.year === Number(understanding.extractedInfo.year) && 
+          r.descr.toLowerCase().includes(understanding.extractedInfo.term!.toLowerCase())
+        );
+        if (requestedRoster) {
+          targetRoster = requestedRoster;
+        }
+      }
+      
       const courses = await storage.getCoursesBySubject(subject, 100);
       if (courses.length > 0) {
         const uniqueCourses = new Map<string, StoredCourse>();
-        for (const course of courses) {
+        
+        // If user specified a term/year, filter to that roster first
+        const relevantCourses = targetRoster && (understanding.extractedInfo.term || understanding.extractedInfo.year)
+          ? courses.filter(c => c.rosterSlug === targetRoster.slug)
+          : courses;
+        
+        for (const course of relevantCourses.length > 0 ? relevantCourses : courses) {
           const key = `${course.subject}-${course.catalogNbr}`;
           if (!uniqueCourses.has(key)) {
             uniqueCourses.set(key, course);
@@ -148,15 +167,16 @@ ${understanding.suggestedQuery ? `Perhaps you meant to ask: "${understanding.sug
           .map(c => `${c.subject} ${c.catalogNbr} - ${c.titleLong}`)
           .join('\n');
 
-        const latestRoster = await storage.getLatestRoster();
-        const latestTerm = latestRoster ? latestRoster.descr : "the latest available term";
+        const actualTerm = targetRoster ? targetRoster.descr : "the latest available term";
         
         let contextNote = "";
-        if (understanding.extractedInfo.term || understanding.extractedInfo.year) {
-          contextNote = `\n\nNote: Course schedules vary by semester. This data is from ${latestTerm}. For the most current information about specific terms, please check the official Cornell Class Roster at classes.cornell.edu.`;
+        if (relevantCourses.length === 0 && understanding.extractedInfo.term && understanding.extractedInfo.year) {
+          contextNote = `\n\nNote: No courses found for ${understanding.extractedInfo.term} ${understanding.extractedInfo.year}. Showing courses from ${actualTerm} instead. Course availability varies by semester.`;
+        } else if (understanding.extractedInfo.term || understanding.extractedInfo.year) {
+          contextNote = `\n\nNote: This data is from ${actualTerm}. Course schedules vary by semester. For the most current information, check classes.cornell.edu.`;
         }
 
-        const availableData = `Subject: ${subject}\nTotal courses: ${uniqueCourses.size}\nData from: ${latestTerm}\n\nSample courses:\n${courseList}${contextNote}`;
+        const availableData = `Subject: ${subject}\nTotal courses: ${uniqueCourses.size}\nData from: ${actualTerm}\n\nSample courses:\n${courseList}${contextNote}`;
         const aiResponse = await aiService.handleBroadQuestion(query, availableData, conversationHistory);
 
         return {
